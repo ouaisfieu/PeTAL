@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PéTAL OS</title>
+<link rel="stylesheet" href="ui/shell.css">
+<link rel="stylesheet" href="ui/themes.css">
+</head>
+
+<body class="theme-sober">
+
+<header class="system-bar">
+  <div class="sys-left">
+    <strong>PéTAL OS</strong>
+    <span id="sysStatus">— état du réel</span>
+  </div>
+  <div class="sys-right">
+    <button onclick="toggleTheme()">🌓</button>
+    <button onclick="openCurrent()">↗ ouvrir</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <aside class="nav-panel">
+    <div class="nav-header">Modules</div>
+    <ul id="moduleList"></ul>
+  </aside>
+
+  <section class="viewer-panel">
+    <iframe id="viewerFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+  </section>
+
+  <aside class="meta-panel">
+    <div class="meta-header">Contexte</div>
+    <div id="metaContent" class="meta-content">
+      <p>Sélectionne un module.</p><br/>
+      <p>Amuse toi surtout.</p><br/>
+      <p>En mode sombre c'est mieux.</p>
+      <br/><p>Courage pour la suite...</p>
+    </div>
+  </aside>
+
+</main>
+
+<script src="core/shell.js"></script>
+</body>
+</html>
