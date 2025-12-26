@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PéTAL – Précarité en Belgique : BIM, Chômage & Invalidité</title>
+  <meta name="description" content="Dashboard documentaire sur la précarité en Belgique : statistiques officielles, statut BIM, chômage, invalidité, et ressources pour comprendre et agir.">
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card: #0f1629;
+      --accent: #3b82f6;
+      --accent2: #10b981;
+      --accent3: #f59e0b;
+      --accent4: #ef4444;
+      --accent5: #8b5cf6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.25);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      background: rgba(10, 15, 26, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: white;
+      letter-spacing: 0.05em;
+    }
+
+    .header-titles h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .header-titles p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-btn:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent);
+    }
+
+    /* NAVIGATION */
+    nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      overflow-x: auto;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 0;
+    }
+
+    nav a {
+      display: block;
+      padding: 12px 16px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      display: grid;
+      grid-template-columns: 300px 1fr 320px;
+      gap: 16px;
+      padding: 16px;
+      max-width: 1600px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+
+    @media (max-width: 1200px) {
+      main { grid-template-columns: 280px 1fr; }
+      .panel-right { display: none; }
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* PANELS */
+    .panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-header h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .panel-body {
+      padding: 12px;
+    }
+
+    /* SEARCH & FILTERS */
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+
+    .search-box input::placeholder { color: var(--muted); }
+
+    .search-box select {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+
+    /* MODULE LIST */
+    .module-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .module-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 10px 8px 6px;
+      font-weight: 600;
+    }
+
+    .module-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+    }
+
+    .module-item:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .module-item.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent);
+    }
+
+    .module-item-title {
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .module-item-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .module-item-meta {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent);
+    }
+
+    .tag.stat { background: rgba(16, 185, 129, 0.2); color: var(--accent2); }
+    .tag.official { background: rgba(245, 158, 11, 0.2); color: var(--accent3); }
+    .tag.critical { background: rgba(239, 68, 68, 0.2); color: var(--accent4); }
+    .tag.solution { background: rgba(139, 92, 246, 0.2); color: var(--accent5); }
+
+    /* VIEWER */
+    .viewer {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .viewer-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .viewer-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .viewer-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .viewer-badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+    }
+
+    .viewer-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .viewer-iframe-container {
+      flex: 1;
+      min-height: 400px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin: 12px;
+      overflow: hidden;
+    }
+
+    .viewer-iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .viewer-text {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 600px;
+    }
+
+    .viewer-text h3 {
+      font-size: 1rem;
+      margin: 20px 0 10px;
+      color: var(--accent);
+    }
+
+    .viewer-text h3:first-child { margin-top: 0; }
+
+    .viewer-text p {
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .viewer-text ul, .viewer-text ol {
+      margin: 10px 0 16px 20px;
+      font-size: 0.9rem;
+    }
+
+    .viewer-text li { margin-bottom: 6px; }
+
+    .viewer-text .stat-highlight {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15));
+      border-left: 3px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .viewer-text .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+
+    .viewer-text .warning-box {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid var(--accent4);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .viewer-text .solution-box {
+      background: rgba(139, 92, 246, 0.1);
+      border-left: 3px solid var(--accent5);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .viewer-text a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .viewer-text a:hover { text-decoration: underline; }
+
+    .viewer-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .viewer-url {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 400px;
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* STATS PANEL */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-card-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-card-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* RESOURCES LIST */
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--bg);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .resource-item:hover {
+      transform: translateX(4px);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .resource-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .resource-info h4 {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .resource-info p {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* SECTION ANALYSIS */
+    .analysis-section {
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .analysis-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-section p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* PRINT STYLES */
+    @media print {
+      header, nav, .panel-left, .panel-right, footer { display: none; }
+      main { display: block; }
+      .viewer { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="logo">PéTAL</div>
+      <div class="header-titles">
+        <h1>Précarité en Belgique</h1>
+        <p>Dashboard documentaire – Données officielles 2024</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="https://github.com" target="_blank" class="header-btn">
+        <span>📥</span> Télécharger
+      </a>
+      <button class="header-btn" onclick="window.print()">
+        <span>🖨️</span> Imprimer
+      </button>
+      <a href="#readme" class="header-btn">
+        <span>📖</span> README
+      </a>
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#" class="active" data-section="overview">Vue d'ensemble</a></li>
+      <li><a href="#" data-section="bim">Statut BIM</a></li>
+      <li><a href="#" data-section="chomage">Chômage</a></li>
+      <li><a href="#" data-section="invalidite">Invalidité</a></li>
+      <li><a href="#" data-section="cpas">CPAS & RIS</a></li>
+      <li><a href="#" data-section="analyse">Analyse critique</a></li>
+      <li><a href="#" data-section="solutions">Solutions</a></li>
+      <li><a href="#" data-section="sources">Sources officielles</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- PANEL GAUCHE : MODULES -->
+    <aside class="panel panel-left">
+      <div class="panel-header">
+        <h2>📚 Modules</h2>
+        <span style="font-size: 0.75rem; color: var(--muted);" id="moduleCount">18 documents</span>
+      </div>
+      <div class="panel-body">
+        <div class="search-box">
+          <input type="search" id="searchInput" placeholder="Rechercher...">
+          <select id="categoryFilter">
+            <option value="all">Tout</option>
+            <option value="stat">Statistiques</option>
+            <option value="official">Officiel</option>
+            <option value="analysis">Analyse</option>
+            <option value="resource">Ressources</option>
+          </select>
+        </div>
+        <div class="module-list" id="moduleList">
+          <!-- Modules générés par JS -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- PANEL CENTRAL : VIEWER -->
+    <section class="panel viewer" id="viewerPanel">
+      <div class="viewer-header">
+        <div class="viewer-title" id="viewerTitle">Précarité en Belgique – Vue d'ensemble</div>
+        <div class="viewer-subtitle" id="viewerSubtitle">Chiffres clés et état des lieux 2024</div>
+        <div class="viewer-badges">
+          <span class="badge"><span class="badge-dot"></span> <span id="viewerCategory">Vue d'ensemble</span></span>
+          <span class="badge" id="viewerType">Documentation</span>
+        </div>
+      </div>
+      <div class="viewer-content" id="viewerContent">
+        <!-- Contenu dynamique -->
+      </div>
+      <div class="viewer-footer">
+        <span class="viewer-url" id="viewerUrl">Document interne</span>
+        <a href="#" id="viewerOpenBtn" class="btn" target="_blank" style="display: none;">Ouvrir ↗</a>
+      </div>
+    </section>
+
+    <!-- PANEL DROIT : STATS & RESSOURCES -->
+    <aside class="panel panel-right">
+      <div class="panel-header">
+        <h2>📊 Chiffres clés 2024</h2>
+      </div>
+      <div class="panel-body">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value">2,1M</div>
+            <div class="stat-card-label">Belges à risque de pauvreté</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" style="color: var(--accent3);">18,3%</div>
+            <div class="stat-card-label">Taux AROPE</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" style="color: var(--accent4);">500K+</div>
+            <div class="stat-card-label">Invalides longue durée</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" style="color: var(--accent5);">2,2M</div>
+            <div class="stat-card-label">Bénéficiaires BIM</div>
+          </div>
+        </div>
+
+        <h3 style="font-size: 0.85rem; margin: 16px 0 10px;">🔗 Ressources officielles</h3>
+        
+        <div class="resource-item" onclick="window.open('https://statbel.fgov.be/fr/themes/menages/pauvrete-et-conditions-de-vie', '_blank')">
+          <div class="resource-icon">📈</div>
+          <div class="resource-info">
+            <h4>Statbel – SILC</h4>
+            <p>Statistiques pauvreté officielles</p>
+          </div>
+        </div>
+
+        <div class="resource-item" onclick="window.open('https://www.inami.fgov.be/fr/statistiques/statistiques-indemnites', '_blank')">
+          <div class="resource-icon">🏥</div>
+          <div class="resource-info">
+            <h4>INAMI – Incapacité</h4>
+            <p>Données invalidité et maladie</p>
+          </div>
+        </div>
+
+        <div class="resource-item" onclick="window.open('https://www.onem.be/page/chiffres', '_blank')">
+          <div class="resource-icon">💼</div>
+          <div class="resource-info">
+            <h4>ONEM – Chômage</h4>
+            <p>Statistiques chômage mensuelles</p>
+          </div>
+        </div>
+
+        <div class="resource-item" onclick="window.open('https://luttepauvrete.be/', '_blank')">
+          <div class="resource-icon">🤝</div>
+          <div class="resource-info">
+            <h4>Service Lutte Pauvreté</h4>
+            <p>Rapports bisannuels</p>
+          </div>
+        </div>
+
+        <div class="resource-item" onclick="window.open('https://www.mi-is.be/', '_blank')">
+          <div class="resource-icon">🏛️</div>
+          <div class="resource-info">
+            <h4>SPP Intégration Sociale</h4>
+            <p>CPAS et RIS</p>
+          </div>
+        </div>
+
+        <div class="analysis-section">
+          <h3>⚡ Point critique</h3>
+          <p>Les allocations minimales restent inférieures au seuil de pauvreté (1.522€/mois pour un isolé). Le RIS isolé = 1.314€ soit <strong>86%</strong> du seuil.</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div>
+      <strong>PéTAL</strong> – Please Take A Look / Prenez le Temps d'Analyser Librement
+      · Dernière mise à jour : Décembre 2024
+      · <a href="#readme">Documentation</a>
+    </div>
+    <div>
+      Sources : <a href="https://statbel.fgov.be" target="_blank">Statbel</a> · 
+      <a href="https://www.inami.fgov.be" target="_blank">INAMI</a> · 
+      <a href="https://www.onem.be" target="_blank">ONEM</a> · 
+      <a href="https://luttepauvrete.be" target="_blank">Service Lutte Pauvreté</a>
+    </div>
+  </footer>
+
+  <script>
+    // =====================================================
+    // DONNÉES DES MODULES
+    // =====================================================
+    const modules = [
+      // VUE D'ENSEMBLE
+      {
+        id: "overview",
+        title: "Précarité en Belgique – Vue d'ensemble",
+        desc: "Chiffres clés et état des lieux complet 2024",
+        category: "stat",
+        type: "Documentation",
+        tags: ["stat", "official"],
+        section: "overview",
+        content: `
+          <div class="viewer-text">
+            <h3>État des lieux de la précarité en Belgique (2024)</h3>
+            
+            <div class="stat-highlight">
+              <span class="stat-number">18,3%</span>
+              de la population belge est exposée au risque de pauvreté ou d'exclusion sociale, soit <strong>plus de 2,1 millions de personnes</strong>.
+              <br><small>Source : Statbel, enquête SILC 2024</small>
+            </div>
+
+            <p>L'indicateur européen AROPE (At Risk Of Poverty or social Exclusion) combine trois dimensions :</p>
+            
+            <ul>
+              <li><strong>Pauvreté monétaire (AROP)</strong> : 11,4% de la population dispose d'un revenu inférieur au seuil de pauvreté (1.522€/mois pour un isolé)</li>
+              <li><strong>Faible intensité de travail (LWI)</strong> : 11,4% vit dans un ménage où les adultes ont travaillé moins de 20% de leur potentiel</li>
+              <li><strong>Privation matérielle sévère (SMSD)</strong> : 6,2% ne peut se permettre au moins 7 éléments essentiels sur 13</li>
+            </ul>
+
+            <h3>Disparités régionales marquées</h3>
+            <p>Les écarts entre régions sont significatifs :</p>
+            <ul>
+              <li><strong>Bruxelles</strong> : 37,3% de risque de pauvreté (le plus élevé)</li>
+              <li><strong>Wallonie</strong> : 21,8% (avec des pointes à 26,7% dans le Hainaut)</li>
+              <li><strong>Flandre</strong> : 12,9% (10,2% en Brabant flamand)</li>
+            </ul>
+
+            <h3>Populations les plus vulnérables</h3>
+            <div class="warning-box">
+              <strong>38,3%</strong> des familles monoparentales sont en situation de pauvreté ou d'exclusion sociale.
+              <br><strong>33,3%</strong> des personnes à faible niveau d'éducation contre 9,1% des diplômés du supérieur.
+            </div>
+
+            <h3>L'efficacité de la protection sociale</h3>
+            <p>Sans les transferts sociaux, le taux de pauvreté passerait de 11,4% à <strong>25,8%</strong>. La sécurité sociale belge réduit donc le risque de pauvreté de près de 53% – un des meilleurs scores européens.</p>
+
+            <p>Cependant, la Belgique reste le <strong>plus mauvais élève européen</strong> concernant les ménages quasi sans emploi (11,3% contre 7,9% de moyenne UE).</p>
+          </div>
+        `
+      },
+      {
+        id: "silc-statbel",
+        title: "Enquête SILC – Statbel",
+        desc: "Statistiques officielles revenus et conditions de vie",
+        category: "stat",
+        type: "Site officiel",
+        tags: ["stat", "official"],
+        section: "overview",
+        url: "https://statbel.fgov.be/fr/themes/menages/pauvrete-et-conditions-de-vie/risque-de-pauvrete-ou-dexclusion-sociale"
+      },
+
+      // BIM
+      {
+        id: "bim-explique",
+        title: "Le statut BIM expliqué",
+        desc: "Bénéficiaire de l'Intervention Majorée : conditions et avantages",
+        category: "official",
+        type: "Documentation",
+        tags: ["official"],
+        section: "bim",
+        content: `
+          <div class="viewer-text">
+            <h3>Qu'est-ce que le statut BIM ?</h3>
+            
+            <p>Le <strong>Bénéficiaire de l'Intervention Majorée (BIM)</strong> est un statut qui permet aux personnes à faibles revenus de bénéficier de remboursements plus élevés pour leurs soins de santé.</p>
+
+            <div class="stat-highlight">
+              <span class="stat-number">2,2 millions</span>
+              de Belges bénéficient actuellement du statut BIM (1 million automatiques, 1,2 million sur base des revenus).
+            </div>
+
+            <h3>Qui y a droit automatiquement ?</h3>
+            <ul>
+              <li>Bénéficiaires du <strong>RIS</strong> (revenu d'intégration) depuis 3 mois</li>
+              <li>Bénéficiaires de la <strong>GRAPA</strong> (garantie de revenus aux personnes âgées)</li>
+              <li>Personnes avec <strong>allocation de handicap</strong></li>
+              <li>Enfants avec incapacité ≥ 66%</li>
+              <li>Orphelins titulaires de moins de 25 ans</li>
+              <li><strong>Depuis octobre 2024</strong> : personnes isolées en incapacité/chômage depuis 3 mois</li>
+            </ul>
+
+            <h3>Conditions de revenus (2024)</h3>
+            <p>Si vous n'avez pas droit automatiquement, vous pouvez demander le BIM si vos revenus bruts annuels ne dépassent pas :</p>
+            <ul>
+              <li><strong>Isolé</strong> : 25.630,67 €/an</li>
+              <li><strong>Par personne supplémentaire</strong> : + 4.744,94 €</li>
+            </ul>
+
+            <h3>Avantages concrets</h3>
+            <ul>
+              <li>✅ Remboursements soins de santé majorés</li>
+              <li>✅ Tiers payant social obligatoire (pas d'avance chez le médecin)</li>
+              <li>✅ Maximum à facturer social : 516,92€/an max de tickets modérateurs</li>
+              <li>✅ Tarifs sociaux transports : TEC 12€/an, STIB 85€/an</li>
+              <li>✅ Allocation de chauffage (Fonds social)</li>
+              <li>⚠️ Plus de tarif social énergie depuis juillet 2023</li>
+            </ul>
+
+            <div class="warning-box">
+              <strong>Attention :</strong> Environ 300.000 personnes éligibles au BIM ne le réclament pas, souvent par méconnaissance. Contactez votre mutuelle !
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "bim-mc",
+        title: "BIM – Mutualité Chrétienne",
+        desc: "Guide complet sur l'intervention majorée",
+        category: "official",
+        type: "Site mutualité",
+        tags: ["official"],
+        section: "bim",
+        url: "https://www.mc.be/fr/avantages-remboursements/statut-bim-intervention-majoree"
+      },
+      {
+        id: "bim-solidaris",
+        title: "BIM – Solidaris",
+        desc: "Comment obtenir le statut BIM",
+        category: "resource",
+        type: "Site mutualité",
+        tags: ["official"],
+        section: "bim",
+        url: "https://www.solidaris-wallonie.be/faq/comment-obtenir-le-statut-bim"
+      },
+
+      // CHÔMAGE
+      {
+        id: "chomage-analyse",
+        title: "Chômage en Belgique – Analyse",
+        desc: "État des lieux du chômage et évolutions 2024",
+        category: "analysis",
+        type: "Documentation",
+        tags: ["stat", "analysis"],
+        section: "chomage",
+        content: `
+          <div class="viewer-text">
+            <h3>Situation du chômage en Belgique (2024)</h3>
+
+            <div class="stat-highlight">
+              <span class="stat-number">273.684</span>
+              chômeurs complets indemnisés demandeurs d'emploi en décembre 2024 (ONEM)
+            </div>
+
+            <h3>Répartition régionale</h3>
+            <ul>
+              <li><strong>Flandre</strong> : 98.508 chômeurs (taux BIT ~3,3%)</li>
+              <li><strong>Wallonie</strong> : 116.072 chômeurs (taux BIT ~7,5%)</li>
+              <li><strong>Bruxelles</strong> : 59.104 chômeurs (taux BIT ~10,7%)</li>
+            </ul>
+
+            <h3>Tendances préoccupantes</h3>
+            <div class="warning-box">
+              <strong>46,9%</strong> des chômeurs sont au chômage depuis plus de 2 ans (chômage de très longue durée).
+              <br><br>
+              Le chômage des jeunes (&lt;25 ans) <strong>augmente</strong> : +5,7% sur un an en décembre 2024.
+            </div>
+
+            <h3>Durée du chômage</h3>
+            <ul>
+              <li>Moins d'1 an : 35,6%</li>
+              <li>1 à 2 ans : 17,5%</li>
+              <li>Plus de 2 ans : <strong>46,9%</strong></li>
+            </ul>
+
+            <h3>Chômage et précarité</h3>
+            <p>Le risque de pauvreté des chômeurs est significativement plus élevé que la moyenne. Les allocations de chômage, après dégressivité, peuvent descendre sous le seuil de pauvreté, particulièrement pour les cohabitants.</p>
+
+            <p>La Belgique se distingue par son système de chômage illimité dans le temps, mais avec une forte dégressivité qui pousse les allocataires vers la précarité à long terme.</p>
+          </div>
+        `
+      },
+      {
+        id: "onem-stats",
+        title: "ONEM – Statistiques mensuelles",
+        desc: "Chiffres officiels du chômage indemnisé",
+        category: "stat",
+        type: "Site officiel",
+        tags: ["stat", "official"],
+        section: "chomage",
+        url: "https://www.onem.be/page/chiffres-federaux-des-chomeurs-indemnises---decembre-2024"
+      },
+      {
+        id: "statbel-emploi",
+        title: "Statbel – Emploi et chômage",
+        desc: "Enquête sur les forces de travail (BIT)",
+        category: "stat",
+        type: "Site officiel",
+        tags: ["stat", "official"],
+        section: "chomage",
+        url: "https://statbel.fgov.be/fr/themes/emploi-formation/marche-du-travail/emploi-et-chomage"
+      },
+
+      // INVALIDITÉ
+      {
+        id: "invalidite-analyse",
+        title: "Invalidité et maladie longue durée",
+        desc: "La bombe à retardement du système belge",
+        category: "analysis",
+        type: "Documentation",
+        tags: ["stat", "critical"],
+        section: "invalidite",
+        content: `
+          <div class="viewer-text">
+            <h3>L'explosion de l'invalidité en Belgique</h3>
+
+            <div class="stat-highlight">
+              <span class="stat-number">502.371</span>
+              invalides au 31 décembre 2022, soit plus d'un demi-million de travailleurs en incapacité de plus d'un an.
+              <br><small>Hors fonctionnaires (régime distinct)</small>
+            </div>
+
+            <h3>Une croissance alarmante</h3>
+            <ul>
+              <li>La part des personnes en incapacité longue durée est passée de <strong>5,4% en 2005 à 11,2% en 2022</strong></li>
+              <li>Augmentation de <strong>+24%</strong> entre 2017 et 2022</li>
+              <li>Les femmes plus touchées : 15,2% vs 8,1% pour les hommes</li>
+            </ul>
+
+            <h3>Les causes principales</h3>
+            <div class="warning-box">
+              <strong>36,9%</strong> des invalidités sont dues aux troubles mentaux (burnout, dépression)
+              <br><strong>31,7%</strong> aux maladies du système locomoteur (dos, articulations)
+              <br><br>
+              Ces deux causes représentent près de <strong>70%</strong> de toutes les invalidités.
+            </div>
+
+            <h3>Le cercle vicieux pauvreté-santé</h3>
+            <p>Les provinces les plus touchées (Hainaut : 6,21%, Liège : 4,96%) sont aussi les plus précarisées. Comme l'explique François Perl (Solidaris) : <em>"Il y a un lien très clair entre une mauvaise santé et un statut socio-économique précaire. C'est un cercle vicieux : on a peu d'argent, donc on reporte des soins."</em></p>
+
+            <h3>Le problème du retour au travail</h3>
+            <p>En 2023, sur 22.800 salariés en incapacité longue durée appelés à reprendre le travail, <strong>plus de 80% ont été licenciés</strong> pour "force majeure médicale".</p>
+
+            <p>Le Fonds Retour au Travail (ReAT), créé pour accompagner ces personnes, n'a été sollicité que par moins de 20 employés...</p>
+          </div>
+        `
+      },
+      {
+        id: "inami-stats",
+        title: "INAMI – Statistiques incapacité",
+        desc: "Données officielles sur l'invalidité",
+        category: "stat",
+        type: "Site officiel",
+        tags: ["stat", "official"],
+        section: "invalidite",
+        url: "https://www.inami.fgov.be/fr/statistiques/statistiques-indemnites"
+      },
+      {
+        id: "inami-burnout",
+        title: "INAMI – Étude burnout/dépression",
+        desc: "Étude AIM-INAMI sur les troubles psychosociaux (2024)",
+        category: "stat",
+        type: "PDF officiel",
+        tags: ["stat", "official"],
+        section: "invalidite",
+        url: "https://www.inami.fgov.be/SiteCollectionDocuments/PSYA_etude_avril_2024.pdf"
+      },
+
+      // CPAS
+      {
+        id: "cpas-ris",
+        title: "CPAS et Revenu d'Intégration Sociale",
+        desc: "Le dernier filet de sécurité sociale",
+        category: "official",
+        type: "Documentation",
+        tags: ["official"],
+        section: "cpas",
+        content: `
+          <div class="viewer-text">
+            <h3>Le Revenu d'Intégration Sociale (RIS)</h3>
+            
+            <p>Le RIS est le dernier recours pour les personnes sans ressources suffisantes. Il est octroyé par le CPAS de la commune de résidence.</p>
+
+            <h3>Montants mensuels (février 2025)</h3>
+            <ul>
+              <li><strong>Cohabitant</strong> : 876,13 €</li>
+              <li><strong>Isolé</strong> : 1.314,20 €</li>
+              <li><strong>Chef de ménage</strong> : 1.776,07 €</li>
+            </ul>
+
+            <div class="warning-box">
+              <strong>Le RIS est inférieur au seuil de pauvreté</strong>
+              <br><br>
+              Seuil de pauvreté 2024 (isolé) : 1.522 €/mois
+              <br>RIS isolé : 1.314 € soit <strong>86% du seuil</strong>
+              <br><br>
+              <em>Source : Service de lutte contre la pauvreté</em>
+            </div>
+
+            <h3>Conditions d'octroi</h3>
+            <ul>
+              <li>Résider en Belgique (habituellement et effectivement)</li>
+              <li>Être majeur (ou mineur émancipé/enceinte/avec enfant)</li>
+              <li>Ne pas disposer de ressources suffisantes</li>
+              <li>Être disposé à travailler (sauf raisons de santé)</li>
+              <li>Avoir épuisé ses droits aux autres prestations sociales</li>
+            </ul>
+
+            <h3>Nombre de bénéficiaires</h3>
+            <p>En 2023, <strong>1,35%</strong> de la population belge bénéficiait du RIS. Ce taux est en augmentation tendancielle depuis 2003.</p>
+
+            <h3>Le PIIS obligatoire</h3>
+            <p>Un Projet Individualisé d'Intégration Sociale doit être conclu avec le CPAS dans les 3 mois, définissant les étapes vers l'autonomie (formation, recherche d'emploi, etc.).</p>
+          </div>
+        `
+      },
+      {
+        id: "spp-is",
+        title: "SPP Intégration Sociale",
+        desc: "Service public fédéral – Montants et réglementation",
+        category: "official",
+        type: "Site officiel",
+        tags: ["official"],
+        section: "cpas",
+        url: "https://www.mi-is.be/"
+      },
+
+      // ANALYSE CRITIQUE
+      {
+        id: "analyse-critique",
+        title: "Analyse critique : les failles du système",
+        desc: "Ce que les chiffres révèlent",
+        category: "analysis",
+        type: "Analyse",
+        tags: ["analysis", "critical"],
+        section: "analyse",
+        content: `
+          <div class="viewer-text">
+            <h3>🔍 Mon analyse critique</h3>
+            
+            <p>En croisant les données officielles, plusieurs constats s'imposent :</p>
+
+            <h3>1. Des allocations structurellement insuffisantes</h3>
+            <div class="warning-box">
+              <strong>Aucune allocation minimale n'atteint le seuil de pauvreté.</strong>
+              <ul>
+                <li>RIS isolé : 86% du seuil</li>
+                <li>RIS cohabitant : 58% du seuil</li>
+                <li>Chômage après dégressivité : peut descendre sous 60% du seuil</li>
+              </ul>
+              <p>Le Service de lutte contre la pauvreté demande depuis des années d'augmenter ces montants jusqu'au seuil de pauvreté. Cette recommandation est systématiquement ignorée.</p>
+            </div>
+
+            <h3>2. Le piège du statut de cohabitant</h3>
+            <p>Le système pénalise fortement la cohabitation :</p>
+            <ul>
+              <li>Le RIS cohabitant (876€) pousse à l'isolement</li>
+              <li>Impossibilité de mutualiser les ressources sans perdre des droits</li>
+              <li>Enquêtes de domiciliation intrusives</li>
+            </ul>
+            <p><em>Paradoxe : le système crée de la précarité en voulant la détecter.</em></p>
+
+            <h3>3. L'explosion silencieuse de l'invalidité</h3>
+            <p>Le nombre d'invalides a doublé en 17 ans. Les causes :</p>
+            <ul>
+              <li>Intensification du travail et burn-out</li>
+              <li>Report des soins pour raisons financières</li>
+              <li>Allongement des carrières (pension plus tardive)</li>
+              <li>Transfert du chômage vers l'invalidité (moins stigmatisant)</li>
+            </ul>
+
+            <h3>4. Le non-recours aux droits</h3>
+            <p>Des centaines de milliers de personnes ne réclament pas les aides auxquelles elles ont droit :</p>
+            <ul>
+              <li>~300.000 personnes éligibles au BIM ne le demandent pas</li>
+              <li>Complexité administrative, honte, méconnaissance</li>
+              <li>La digitalisation exclut les plus vulnérables</li>
+            </ul>
+
+            <h3>5. Un système à deux vitesses régional</h3>
+            <p>Bruxelles cumule un taux AROPE de 37,3% avec le coût de la vie le plus élevé. Les Bruxellois précaires sont doublement pénalisés.</p>
+          </div>
+        `
+      },
+      {
+        id: "rapport-bisannuel",
+        title: "Rapport bisannuel 2024-2025",
+        desc: "Service de lutte contre la pauvreté – L'humain comme boussole",
+        category: "official",
+        type: "Rapport officiel",
+        tags: ["official", "analysis"],
+        section: "analyse",
+        url: "https://luttepauvrete.be/"
+      },
+
+      // SOLUTIONS
+      {
+        id: "solutions",
+        title: "Pistes de solutions",
+        desc: "Ce qui pourrait changer",
+        category: "analysis",
+        type: "Propositions",
+        tags: ["solution"],
+        section: "solutions",
+        content: `
+          <div class="viewer-text">
+            <h3>💡 Pistes de solutions</h3>
+
+            <div class="solution-box">
+              <strong>1. Relever les minima sociaux au seuil de pauvreté</strong>
+              <p>C'est la recommandation n°1 du Service de lutte contre la pauvreté et du Comité des droits économiques et sociaux de l'ONU.</p>
+            </div>
+
+            <div class="solution-box">
+              <strong>2. Automatiser l'octroi des droits</strong>
+              <p>Plutôt que de forcer les citoyens à prouver leur précarité, utiliser le croisement de données pour octroyer automatiquement les aides (comme c'est fait partiellement pour le BIM depuis 2024).</p>
+            </div>
+
+            <div class="solution-box">
+              <strong>3. Individualiser les droits</strong>
+              <p>Supprimer le statut de cohabitant qui piège les personnes dans l'isolement et pénalise la solidarité familiale.</p>
+            </div>
+
+            <div class="solution-box">
+              <strong>4. Investir dans la prévention santé au travail</strong>
+              <p>L'explosion des burn-out et dépressions (36,9% des invalidités) est un symptôme de dysfonctionnements organisationnels. Agir sur les causes plutôt que gérer les conséquences.</p>
+            </div>
+
+            <div class="solution-box">
+              <strong>5. Réhumaniser les services publics</strong>
+              <p>Comme le demande le rapport 2024-2025 : rétablir les guichets physiques, former les agents à l'accueil des personnes en difficulté, simplifier les procédures.</p>
+            </div>
+
+            <h3>📚 Pour aller plus loin</h3>
+            <ul>
+              <li><a href="https://luttepauvrete.be/publication/du-service/rapport-bisannuel/" target="_blank">Tous les rapports bisannuels</a></li>
+              <li><a href="https://indicators.be/" target="_blank">Indicateurs de développement durable</a></li>
+              <li><a href="https://www.droitsquotidiens.be/" target="_blank">Droits Quotidiens – Vulgarisation juridique</a></li>
+              <li><a href="https://www.atd-quartmonde.be/" target="_blank">ATD Quart Monde Belgique</a></li>
+              <li><a href="https://www.rwlp.be/" target="_blank">Réseau Wallon de Lutte contre la Pauvreté</a></li>
+            </ul>
+
+            <h3>🗣️ Associations de terrain</h3>
+            <p>De nombreuses associations accompagnent les personnes en précarité et portent leur voix. Elles sont souvent le premier contact humain dans un système déshumanisé.</p>
+          </div>
+        `
+      },
+
+      // SOURCES
+      {
+        id: "sources-officielles",
+        title: "Toutes les sources officielles",
+        desc: "Liens directs vers les données primaires",
+        category: "resource",
+        type: "Répertoire",
+        tags: ["official"],
+        section: "sources",
+        content: `
+          <div class="viewer-text">
+            <h3>📊 Statistiques pauvreté</h3>
+            <ul>
+              <li><a href="https://statbel.fgov.be/fr/themes/menages/pauvrete-et-conditions-de-vie" target="_blank">Statbel – Pauvreté et conditions de vie</a></li>
+              <li><a href="https://indicators.be/" target="_blank">Indicators.be – SDG Belgique</a></li>
+              <li><a href="https://www.iweps.be/" target="_blank">IWEPS – Institut wallon statistiques</a></li>
+              <li><a href="https://ec.europa.eu/eurostat" target="_blank">Eurostat – Statistiques UE</a></li>
+            </ul>
+
+            <h3>🏥 Santé et invalidité</h3>
+            <ul>
+              <li><a href="https://www.inami.fgov.be/" target="_blank">INAMI – Institut national assurance maladie-invalidité</a></li>
+              <li><a href="https://www.inami.fgov.be/fr/statistiques/statistiques-indemnites" target="_blank">INAMI – Statistiques indemnités</a></li>
+            </ul>
+
+            <h3>💼 Emploi et chômage</h3>
+            <ul>
+              <li><a href="https://www.onem.be/" target="_blank">ONEM – Office national de l'emploi</a></li>
+              <li><a href="https://www.leforem.be/" target="_blank">Forem – Emploi Wallonie</a></li>
+              <li><a href="https://www.actiris.brussels/" target="_blank">Actiris – Emploi Bruxelles</a></li>
+              <li><a href="https://www.vdab.be/" target="_blank">VDAB – Emploi Flandre</a></li>
+            </ul>
+
+            <h3>🤝 Aide sociale</h3>
+            <ul>
+              <li><a href="https://www.mi-is.be/" target="_blank">SPP Intégration Sociale</a></li>
+              <li><a href="https://luttepauvrete.be/" target="_blank">Service de lutte contre la pauvreté</a></li>
+              <li><a href="https://socialsecurity.belgium.be/" target="_blank">SPF Sécurité Sociale</a></li>
+            </ul>
+
+            <h3>🏦 Mutualités</h3>
+            <ul>
+              <li><a href="https://www.mc.be/" target="_blank">Mutualité Chrétienne</a></li>
+              <li><a href="https://www.solidaris.be/" target="_blank">Solidaris</a></li>
+              <li><a href="https://www.partenamut.be/" target="_blank">Partenamut</a></li>
+              <li><a href="https://www.mloz.be/" target="_blank">Mutualités Libres</a></li>
+            </ul>
+
+            <h3>📖 Vulgarisation et aide</h3>
+            <ul>
+              <li><a href="https://www.droitsquotidiens.be/" target="_blank">Droits Quotidiens</a></li>
+              <li><a href="https://www.bruxelles-j.be/" target="_blank">Bruxelles-J (jeunes)</a></li>
+              <li><a href="https://ijbxl.be/" target="_blank">Infor Jeunes Bruxelles</a></li>
+            </ul>
+          </div>
+        `
+      },
+
+      // README
+      {
+        id: "readme",
+        title: "README – Documentation PéTAL",
+        desc: "Comment utiliser, modifier et publier ce dashboard",
+        category: "resource",
+        type: "Documentation",
+        tags: [],
+        section: "readme",
+        content: `
+          <div class="viewer-text">
+            <h3>📖 PéTAL – Please Take A Look</h3>
+            <p><em>Prenez le Temps d'Analyser Librement</em></p>
+
+            <h3>Qu'est-ce qu'un PéTAL ?</h3>
+            <p>Un PéTAL est un <strong>Dashboard documentaire</strong> autonome : un fichier HTML unique qui contient toutes les informations, styles et scripts nécessaires. Il peut être :</p>
+            <ul>
+              <li>📥 Téléchargé et consulté hors ligne</li>
+              <li>✏️ Modifié avec n'importe quel éditeur de texte</li>
+              <li>🌐 Publié gratuitement sur GitHub Pages</li>
+              <li>📤 Partagé par email ou clé USB</li>
+            </ul>
+
+            <h3>Comment publier sur GitHub Pages ?</h3>
+            <ol>
+              <li>Créez un compte <a href="https://github.com" target="_blank">GitHub</a> (gratuit)</li>
+              <li>Créez un nouveau repository (ex: <code>mon-ptal</code>)</li>
+              <li>Uploadez le fichier <code>PTAL.html</code> renommé en <code>index.html</code></li>
+              <li>Allez dans Settings → Pages → Source: main branch</li>
+              <li>Votre PéTAL est accessible sur <code>https://votre-pseudo.github.io/mon-ptal/</code></li>
+            </ol>
+
+            <h3>Comment modifier ce PéTAL ?</h3>
+            <p>Ouvrez le fichier avec un éditeur de code (VS Code, Notepad++, etc.) et modifiez :</p>
+            <ul>
+              <li>Le tableau <code>modules</code> pour ajouter/modifier des contenus</li>
+              <li>Les variables CSS <code>:root</code> pour changer les couleurs</li>
+              <li>Les textes directement dans le HTML</li>
+            </ul>
+
+            <h3>Licence</h3>
+            <p>Ce PéTAL est en <strong>domaine public</strong>. Utilisez-le, modifiez-le, partagez-le librement. Si vous l'améliorez, partagez vos modifications !</p>
+
+            <h3>Sources des données</h3>
+            <p>Toutes les statistiques proviennent de sources officielles belges (Statbel, INAMI, ONEM, SPP IS) et européennes (Eurostat). Les analyses et opinions sont celles de l'auteur et n'engagent pas ces institutions.</p>
+
+            <h3>Contact</h3>
+            <p>Ce PéTAL a été généré par Claude (Anthropic) à la demande d'un utilisateur. Pour toute question sur les données, référez-vous aux sources officielles listées.</p>
+            
+            <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+              <strong>Version :</strong> 1.0 – Décembre 2024<br>
+              <strong>Données :</strong> SILC 2024, ONEM Déc. 2024, INAMI 2022-2023
+            </p>
+          </div>
+        `
+      }
+    ];
+
+    // =====================================================
+    // LOGIQUE
+    // =====================================================
+    let currentModule = modules[0];
+
+    function renderModuleList(filter = "all", search = "") {
+      const container = document.getElementById("moduleList");
+      const searchLower = search.toLowerCase();
+      
+      const filtered = modules.filter(m => {
+        if (filter !== "all" && m.category !== filter) return false;
+        if (search && !m.title.toLowerCase().includes(searchLower) && !m.desc.toLowerCase().includes(searchLower)) return false;
+        return true;
+      });
+
+      // Group by section
+      const sections = {};
+      filtered.forEach(m => {
+        if (!sections[m.section]) sections[m.section] = [];
+        sections[m.section].push(m);
+      });
+
+      const sectionLabels = {
+        overview: "Vue d'ensemble",
+        bim: "Statut BIM",
+        chomage: "Chômage",
+        invalidite: "Invalidité",
+        cpas: "CPAS & RIS",
+        analyse: "Analyse critique",
+        solutions: "Solutions",
+        sources: "Sources",
+        readme: "Documentation"
+      };
+
+      let html = "";
+      Object.keys(sections).forEach(section => {
+        html += `<div class="module-group-title">${sectionLabels[section] || section}</div>`;
+        sections[section].forEach(m => {
+          const activeClass = currentModule.id === m.id ? "active" : "";
+          const tags = m.tags.map(t => `<span class="tag ${t}">${t}</span>`).join("");
+          html += `
+            <div class="module-item ${activeClass}" onclick="selectModule('${m.id}')">
+              <div class="module-item-title">${m.title}</div>
+              <div class="module-item-desc">${m.desc}</div>
+              <div class="module-item-meta">${tags}</div>
+            </div>
+          `;
+        });
+      });
+
+      container.innerHTML = html;
+      document.getElementById("moduleCount").textContent = `${filtered.length} documents`;
+    }
+
+    function selectModule(id) {
+      const m = modules.find(x => x.id === id);
+      if (!m) return;
+      currentModule = m;
+
+      document.getElementById("viewerTitle").textContent = m.title;
+      document.getElementById("viewerSubtitle").textContent = m.desc;
+      document.getElementById("viewerCategory").textContent = m.section;
+      document.getElementById("viewerType").textContent = m.type;
+
+      const content = document.getElementById("viewerContent");
+      const urlEl = document.getElementById("viewerUrl");
+      const openBtn = document.getElementById("viewerOpenBtn");
+
+      if (m.content) {
+        content.innerHTML = m.content;
+        urlEl.textContent = "Document interne";
+        openBtn.style.display = "none";
+      } else if (m.url) {
+        content.innerHTML = `
+          <div class="viewer-iframe-container">
+            <iframe src="${m.url}" loading="lazy"></iframe>
+          </div>
+        `;
+        urlEl.textContent = m.url;
+        openBtn.href = m.url;
+        openBtn.style.display = "inline-block";
+      }
+
+      renderModuleList(
+        document.getElementById("categoryFilter").value,
+        document.getElementById("searchInput").value
+      );
+    }
+
+    // Navigation tabs
+    document.querySelectorAll("nav a").forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        document.querySelectorAll("nav a").forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+        
+        const section = link.dataset.section;
+        const firstModule = modules.find(m => m.section === section);
+        if (firstModule) selectModule(firstModule.id);
+      });
+    });
+
+    // Search & filter
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      renderModuleList(document.getElementById("categoryFilter").value, e.target.value);
+    });
+
+    document.getElementById("categoryFilter").addEventListener("change", (e) => {
+      renderModuleList(e.target.value, document.getElementById("searchInput").value);
+    });
+
+    // Init
+    renderModuleList();
+    selectModule("overview");
+  </script>
+</body>
+</html>
