@@ -1,0 +1,18 @@
+.theme-sober{
+  background:#f8f9fa;
+  color:#222;
+}
+
+.theme-matrix{
+  background:#020617;
+  color:#9effc3;
+}
+
+.theme-matrix .system-bar{
+  background:rgba(0,0,0,.8);
+  border-color:#22c55e;
+}
+
+.theme-matrix li:hover{
+  background:rgba(34,197,94,.2);
+}
