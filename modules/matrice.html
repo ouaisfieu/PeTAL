@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PTAL – Bienvenue dans le désert du réel</title>
+  <meta name="description" content="Un dashboard pour ceux qui veulent comprendre comment le monde fonctionne vraiment. Prenez la pilule rouge.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+    :root {
+      --bg: #0a0a0a;
+      --card: #0d1117;
+      --matrix: #00ff41;
+      --matrix-dim: #003b00;
+      --matrix-glow: rgba(0, 255, 65, 0.3);
+      --red: #ff0040;
+      --blue: #0080ff;
+      --text: #c9d1d9;
+      --muted: #6e7681;
+      --border: rgba(0, 255, 65, 0.2);
+      --font-main: 'Share Tech Mono', monospace;
+      --font-display: 'Orbitron', sans-serif;
+      --radius: 4px;
+      --glow: 0 0 20px var(--matrix-glow);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* MATRIX RAIN BACKGROUND */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.07;
+      background: 
+        linear-gradient(180deg, transparent 0%, var(--bg) 100%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 255, 65, 0.03) 2px,
+          rgba(0, 255, 65, 0.03) 4px
+        );
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--matrix);
+      text-shadow: var(--glow);
+      letter-spacing: 0.1em;
+    }
+
+    .logo-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    .pill-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid;
+      font-family: var(--font-main);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-red {
+      border-color: var(--red);
+      background: rgba(255, 0, 64, 0.1);
+      color: var(--red);
+    }
+
+    .pill-red:hover {
+      background: var(--red);
+      color: white;
+      box-shadow: 0 0 20px rgba(255, 0, 64, 0.5);
+    }
+
+    .pill-blue {
+      border-color: var(--blue);
+      background: rgba(0, 128, 255, 0.1);
+      color: var(--blue);
+    }
+
+    .pill-blue:hover {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 0 20px rgba(0, 128, 255, 0.5);
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* INTRO SECTION */
+    .intro {
+      text-align: center;
+      padding: 60px 20px;
+      margin-bottom: 40px;
+    }
+
+    .intro h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 5vw, 3rem);
+      color: var(--matrix);
+      text-shadow: var(--glow);
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .intro .tagline {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 700px;
+      margin: 0 auto 30px;
+    }
+
+    .intro .morpheus-quote {
+      font-style: italic;
+      color: var(--text);
+      padding: 20px 30px;
+      border-left: 3px solid var(--matrix);
+      background: rgba(0, 255, 65, 0.05);
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .intro .morpheus-quote cite {
+      display: block;
+      margin-top: 10px;
+      color: var(--matrix);
+      font-style: normal;
+      font-size: 0.85rem;
+    }
+
+    /* CHOICE SECTION */
+    .choice-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .choice-section { grid-template-columns: 1fr; }
+    }
+
+    .choice-card {
+      padding: 30px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--card);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .choice-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .choice-card.red {
+      border-color: rgba(255, 0, 64, 0.3);
+    }
+
+    .choice-card.red:hover {
+      box-shadow: 0 10px 40px rgba(255, 0, 64, 0.2);
+      border-color: var(--red);
+    }
+
+    .choice-card.blue {
+      border-color: rgba(0, 128, 255, 0.3);
+    }
+
+    .choice-card.blue:hover {
+      box-shadow: 0 10px 40px rgba(0, 128, 255, 0.2);
+      border-color: var(--blue);
+    }
+
+    .choice-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .choice-card.red h2 { color: var(--red); }
+    .choice-card.blue h2 { color: var(--blue); }
+
+    .choice-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .pill-icon {
+      font-size: 1.5rem;
+    }
+
+    /* CONTENT SECTIONS */
+    .section {
+      margin-bottom: 50px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--matrix);
+      letter-spacing: 0.05em;
+    }
+
+    .section-number {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      border-color: var(--matrix);
+      box-shadow: var(--glow);
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      color: var(--matrix);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .card .highlight {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .card-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: var(--matrix);
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .card-link:hover {
+      text-shadow: var(--glow);
+    }
+
+    /* QUOTE BLOCKS */
+    .quote-block {
+      background: rgba(0, 255, 65, 0.05);
+      border-left: 3px solid var(--matrix);
+      padding: 20px 25px;
+      margin: 30px 0;
+      font-style: italic;
+    }
+
+    .quote-block cite {
+      display: block;
+      margin-top: 10px;
+      font-style: normal;
+      color: var(--matrix);
+      font-size: 0.85rem;
+    }
+
+    .quote-block.warning {
+      background: rgba(255, 0, 64, 0.05);
+      border-left-color: var(--red);
+    }
+
+    .quote-block.warning cite { color: var(--red); }
+
+    /* TERMINAL STYLE */
+    .terminal {
+      background: #000;
+      border: 1px solid var(--matrix-dim);
+      border-radius: var(--radius);
+      padding: 20px;
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--matrix-dim);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27ca40; }
+
+    .terminal-line {
+      margin-bottom: 8px;
+      color: var(--matrix);
+    }
+
+    .terminal-line::before {
+      content: "> ";
+      color: var(--matrix-dim);
+    }
+
+    .terminal-line.output {
+      color: var(--text);
+      padding-left: 20px;
+    }
+
+    .terminal-line.output::before {
+      content: "";
+    }
+
+    .terminal-line .cmd { color: var(--matrix); }
+    .terminal-line .string { color: #e6db74; }
+    .terminal-line .number { color: #ae81ff; }
+    .terminal-line .error { color: var(--red); }
+
+    /* EXPANDED TEXT */
+    .expanded-content {
+      padding: 30px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: 30px 0;
+    }
+
+    .expanded-content h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--matrix);
+      margin-bottom: 20px;
+    }
+
+    .expanded-content h4 {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin: 25px 0 12px;
+    }
+
+    .expanded-content p {
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      color: var(--muted);
+    }
+
+    .expanded-content ul {
+      margin: 15px 0 15px 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .expanded-content li {
+      margin-bottom: 8px;
+    }
+
+    .expanded-content strong {
+      color: var(--text);
+    }
+
+    .expanded-content a {
+      color: var(--matrix);
+      text-decoration: none;
+    }
+
+    .expanded-content a:hover {
+      text-decoration: underline;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--matrix);
+      text-shadow: var(--glow);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* COLLAPSIBLE */
+    .collapsible {
+      margin: 15px 0;
+    }
+
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .collapsible-header:hover {
+      border-color: var(--matrix);
+    }
+
+    .collapsible-header h4 {
+      font-size: 0.9rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .collapsible-toggle {
+      color: var(--matrix);
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .collapsible.open .collapsible-toggle {
+      transform: rotate(45deg);
+    }
+
+    .collapsible-content {
+      display: none;
+      padding: 20px;
+      background: rgba(0, 255, 65, 0.02);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+
+    .collapsible.open .collapsible-content {
+      display: block;
+    }
+
+    .collapsible-content p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 30px 24px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--matrix);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    .footer-ascii {
+      font-family: var(--font-main);
+      font-size: 0.6rem;
+      color: var(--matrix-dim);
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    /* ANIMATIONS */
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.2em;
+      background: var(--matrix);
+      margin-left: 2px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 1px); }
+      94% { transform: translate(2px, -1px); }
+      96% { transform: translate(-1px, 2px); }
+      98% { transform: translate(1px, -2px); }
+    }
+
+    .glitch:hover {
+      animation: glitch 0.3s infinite;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--matrix-dim); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--matrix); }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      header { padding: 12px 16px; }
+      .logo { font-size: 1.3rem; }
+      main { padding: 16px; }
+      .intro { padding: 40px 10px; }
+      .pill-btn span:not(.pill-icon) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="matrix-bg"></div>
+  <div class="scanline"></div>
+
+  <header>
+    <div class="logo-section">
+      <div>
+        <div class="logo glitch">PTAL</div>
+        <div class="logo-sub">PLEASE TAKE A LOOK</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="#red" class="pill-btn pill-red">
+        <span class="pill-icon">💊</span>
+        <span>Pilule rouge</span>
+      </a>
+      <a href="#blue" class="pill-btn pill-blue">
+        <span class="pill-icon">💊</span>
+        <span>Pilule bleue</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- INTRO -->
+    <section class="intro">
+      <h1>Bienvenue dans le désert du réel<span class="cursor"></span></h1>
+      <p class="tagline">
+        Un espace pour ceux qui veulent comprendre comment le monde fonctionne vraiment.
+        Pas de complot, pas de gourou — juste des questions, des données, et la liberté de penser.
+      </p>
+      <div class="morpheus-quote">
+        "Je ne te promets que la vérité. Rien de plus."
+        <cite>— Morpheus, The Matrix (1999)</cite>
+      </div>
+    </section>
+
+    <!-- CHOICE -->
+    <section class="choice-section" id="choice">
+      <div class="choice-card red" onclick="document.getElementById('red').scrollIntoView({behavior: 'smooth'})">
+        <h2><span class="pill-icon">🔴</span> La pilule rouge</h2>
+        <p>
+          Tu restes au Pays des Merveilles, et je te montre jusqu'où va le terrier du lapin.
+          <br><br>
+          <strong>Questionner le système.</strong> Comprendre les mécanismes invisibles. 
+          Voir ce qui se cache derrière les évidences. Accepter l'inconfort de la lucidité.
+        </p>
+      </div>
+      <div class="choice-card blue" onclick="document.getElementById('blue').scrollIntoView({behavior: 'smooth'})">
+        <h2><span class="pill-icon">🔵</span> La pilule bleue</h2>
+        <p>
+          L'histoire s'arrête là, tu te réveilles dans ton lit et tu crois ce que tu veux.
+          <br><br>
+          <strong>Continuer comme avant.</strong> Les règles sont les règles. 
+          Le système a ses raisons. Mieux vaut ne pas trop réfléchir.
+        </p>
+      </div>
+    </section>
+
+    <!-- RED PILL CONTENT -->
+    <section class="section" id="red">
+      <div class="section-header">
+        <span class="section-number">001</span>
+        <h2>LE TERRIER DU LAPIN</h2>
+      </div>
+
+      <div class="expanded-content">
+        <h3>🔴 Tu as choisi la pilule rouge</h3>
+        
+        <p>
+          Bienvenue. La pilule rouge n'est pas une révélation mystique — c'est simplement 
+          le choix de <strong>regarder les choses en face</strong>, même quand c'est inconfortable.
+        </p>
+
+        <h4>Ce qu'on ne t'a jamais appris à l'école</h4>
+        <p>
+          Le système dans lequel tu vis n'est pas "naturel". Il a été construit, petit à petit, 
+          par des décisions humaines. Ce qui veut dire qu'il peut être <strong>déconstruit</strong> 
+          et <strong>reconstruit autrement</strong>.
+        </p>
+
+        <ul>
+          <li>L'économie n'est pas une science exacte — c'est un ensemble de <strong>choix politiques</strong> présentés comme des lois naturelles</li>
+          <li>Le "bon sens" est souvent du <strong>sens commun fabriqué</strong> — ce qui paraissait évident hier (esclavage, monarchie absolue) nous horrifie aujourd'hui</li>
+          <li>Les règles du jeu favorisent ceux qui les ont écrites — c'est <strong>mathématique</strong>, pas complotiste</li>
+          <li>Ta valeur n'est pas ton utilité économique — mais le système veut te faire croire le contraire</li>
+        </ul>
+
+        <div class="quote-block">
+          "Il est plus facile d'imaginer la fin du monde que la fin du capitalisme."
+          <cite>— Fredric Jameson / Slavoj Žižek</cite>
+        </div>
+
+        <h4>La Matrice, version 2024</h4>
+        <p>
+          Dans le film, la Matrice est une simulation informatique. Dans la vraie vie, 
+          c'est un <strong>ensemble de croyances partagées</strong> qui façonnent notre perception du possible :
+        </p>
+
+        <ul>
+          <li><strong>"Il n'y a pas d'alternative"</strong> (TINA) — Faux. Il y a toujours des alternatives. On choisit simplement de ne pas les voir.</li>
+          <li><strong>"C'est comme ça"</strong> — Non. C'est comme ça parce que quelqu'un a décidé que ce serait comme ça.</li>
+          <li><strong>"On ne peut rien faire"</strong> — Individuellement, peut-être. Collectivement, on peut tout.</li>
+          <li><strong>"Les experts savent mieux"</strong> — Les experts sont utiles, mais ils ont aussi des biais, des intérêts, des angles morts.</li>
+        </ul>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value">62</div>
+          <div class="stat-label">personnes possèdent autant que 50% de l'humanité</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">40%</div>
+          <div class="stat-label">des emplois pourraient être automatisés d'ici 2030</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">croissance sur une planète finie ?</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">8h</div>
+          <div class="stat-label">par jour à travailler — pourquoi pas 4 ?</div>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <h3>🏦 L'argent n'est pas réel</h3>
+          <p>
+            Enfin, pas comme tu le crois. <span class="highlight">97% de l'argent en circulation est créé par les banques privées</span> 
+            quand elles accordent des crédits. Ce n'est pas un complot — c'est le fonctionnement officiel du système monétaire.
+          </p>
+          <a href="https://www.banque-france.fr/fr/publications-et-statistiques/publications/la-creation-monetaire" target="_blank" class="card-link">→ Source : Banque de France</a>
+        </div>
+        <div class="card">
+          <h3>📊 Le PIB mesure l'activité, pas le bien-être</h3>
+          <p>
+            Un accident de voiture <span class="highlight">augmente le PIB</span> (hôpital, garage, assurance...). 
+            Élever ses enfants ou aider ses voisins ne compte pas. On optimise ce qu'on mesure — et on mesure mal.
+          </p>
+          <a href="https://www.alternatives-economiques.fr/limites-du-pib" target="_blank" class="card-link">→ En savoir plus</a>
+        </div>
+        <div class="card">
+          <h3>⚖️ Les règles sont faites par ceux qui gagnent</h3>
+          <p>
+            L'optimisation fiscale des multinationales est <span class="highlight">légale</span>. 
+            Voler un sandwich ne l'est pas. Ce n'est pas un hasard — c'est le résultat de décennies de lobbying.
+          </p>
+          <a href="https://www.oxfam.org/fr/communiques-presse" target="_blank" class="card-link">→ Rapports Oxfam</a>
+        </div>
+        <div class="card">
+          <h3>🧠 Ton attention est le produit</h3>
+          <p>
+            Les réseaux sociaux ne sont pas gratuits — <span class="highlight">tu es le produit</span>. 
+            Des milliers d'ingénieurs optimisent chaque détail pour capturer ton attention et la revendre aux annonceurs.
+          </p>
+          <a href="https://www.thesocialdilemma.com/" target="_blank" class="card-link">→ The Social Dilemma</a>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLES -->
+      <div class="collapsible" onclick="this.classList.toggle('open')">
+        <div class="collapsible-header">
+          <h4>📚 Comment on en est arrivé là ?</h4>
+          <span class="collapsible-toggle">+</span>
+        </div>
+        <div class="collapsible-content">
+          <p>
+            Le système actuel n'est pas tombé du ciel. Il s'est construit progressivement :
+          </p>
+          <p>
+            <strong>1. L'enclosure des communs (16e-19e siècle)</strong> — Les terres communes ont été privatisées, 
+            forçant les paysans à devenir ouvriers. Premier acte de la "prolétarisation".
+          </p>
+          <p>
+            <strong>2. La révolution industrielle</strong> — Le travail devient une marchandise. 
+            On vend son temps contre un salaire.
+          </p>
+          <p>
+            <strong>3. La société de consommation (20e siècle)</strong> — Pour écouler la surproduction, 
+            on crée le désir de consommer. La publicité devient omniprésente.
+          </p>
+          <p>
+            <strong>4. Le néolibéralisme (1980-aujourd'hui)</strong> — L'État se retire, le marché devient roi. 
+            "There is no alternative" (Thatcher).
+          </p>
+          <p>
+            <strong>5. Le capitalisme de surveillance (21e siècle)</strong> — Tes données personnelles 
+            deviennent la nouvelle matière première.
+          </p>
+        </div>
+      </div>
+
+      <div class="collapsible" onclick="this.classList.toggle('open')">
+        <div class="collapsible-header">
+          <h4>🔧 Et maintenant, on fait quoi ?</h4>
+          <span class="collapsible-toggle">+</span>
+        </div>
+        <div class="collapsible-content">
+          <p><strong>1. Cultiver l'esprit critique</strong></p>
+          <p>
+            Pas la paranoïa ou le complotisme — l'esprit critique. Se demander "qui bénéficie de cette situation ?", 
+            "quels intérêts sont en jeu ?", "est-ce vraiment la seule option ?".
+          </p>
+          <p><strong>2. Sortir de l'isolement</strong></p>
+          <p>
+            Le système individualise les problèmes collectifs. Tu n'es pas "en échec" — 
+            tu fais face à des structures qui ne sont pas faites pour toi. Rejoins des collectifs, 
+            des associations, des mouvements.
+          </p>
+          <p><strong>3. Expérimenter d'autres façons de vivre</strong></p>
+          <p>
+            Coopératives, communs, économie circulaire, habitat partagé, monnaies locales... 
+            Des milliers d'alternatives existent déjà. Elles prouvent que d'autres modèles sont possibles.
+          </p>
+          <p><strong>4. Politiser le quotidien</strong></p>
+          <p>
+            Chaque acte de consommation est un vote. Chaque conversation est une opportunité 
+            de questionner les évidences. Le changement commence dans les interstices.
+          </p>
+        </div>
+      </div>
+
+      <div class="collapsible" onclick="this.classList.toggle('open')">
+        <div class="collapsible-header">
+          <h4>📖 Ressources pour aller plus loin</h4>
+          <span class="collapsible-toggle">+</span>
+        </div>
+        <div class="collapsible-content">
+          <p><strong>Livres</strong></p>
+          <ul>
+            <li>"Sapiens" — Yuval Noah Harari (comprendre l'histoire humaine)</li>
+            <li>"La Stratégie du choc" — Naomi Klein (le capitalisme du désastre)</li>
+            <li>"Bullshit Jobs" — David Graeber (l'absurdité du travail moderne)</li>
+            <li>"Le Mythe de la machine" — Lewis Mumford (technologie et société)</li>
+          </ul>
+          <p><strong>Documentaires</strong></p>
+          <ul>
+            <li>"The Social Dilemma" (Netflix) — L'économie de l'attention</li>
+            <li>"Capitalisme" (Arte) — Série documentaire en 6 épisodes</li>
+            <li>"I, Daniel Blake" (Ken Loach) — La violence administrative</li>
+          </ul>
+          <p><strong>Sites et médias</strong></p>
+          <ul>
+            <li><a href="https://www.alternatives-economiques.fr/" target="_blank">Alternatives Économiques</a></li>
+            <li><a href="https://www.mediapart.fr/" target="_blank">Mediapart</a></li>
+            <li><a href="https://www.monde-diplomatique.fr/" target="_blank">Le Monde Diplomatique</a></li>
+            <li><a href="https://www.youtube.com/@Heueka" target="_blank">Heu?reka (YouTube)</a> — Économie accessible</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLUE PILL CONTENT -->
+    <section class="section" id="blue">
+      <div class="section-header">
+        <span class="section-number">002</span>
+        <h2>RETOUR À LA NORMALE</h2>
+      </div>
+
+      <div class="expanded-content">
+        <h3>🔵 Tu as choisi la pilule bleue</h3>
+        
+        <p>
+          C'est un choix respectable. Après tout, le système fonctionne — plus ou moins. 
+          Les trains roulent, les magasins sont approvisionnés, Netflix propose des milliers de séries.
+        </p>
+
+        <h4>Les arguments pour rester dans la Matrice</h4>
+        <ul>
+          <li><strong>La stabilité</strong> — Le changement est risqué. Mieux vaut un mal connu qu'un bien incertain.</li>
+          <li><strong>Le confort</strong> — On n'a jamais aussi bien vécu qu'aujourd'hui (en moyenne, en Occident).</li>
+          <li><strong>L'impuissance</strong> — Même en comprenant le système, que peut-on vraiment changer ?</li>
+          <li><strong>La fatigue</strong> — On a déjà assez à faire avec sa propre vie.</li>
+        </ul>
+
+        <div class="quote-block warning">
+          "La servitude moderne est une servitude volontaire, consentie par la foule des esclaves qui rampent à la surface de la Terre. 
+          Ils achètent eux-mêmes toutes les marchandises qui les asservissent toujours plus."
+          <cite>— De la servitude moderne (2009)</cite>
+        </div>
+
+        <h4>Mais peut-être que...</h4>
+        <p>
+          Si tu es arrivé jusqu'ici, c'est que quelque chose te démange. Une intuition. 
+          Un malaise diffus. Le sentiment que quelque chose ne tourne pas rond.
+        </p>
+        <p>
+          La pilule bleue n'efface pas ce sentiment. Elle le met juste en sourdine. 
+          Temporairement.
+        </p>
+        <p>
+          <strong>La bonne nouvelle :</strong> tu peux toujours changer d'avis. 
+          Le terrier du lapin sera toujours là quand tu seras prêt.
+        </p>
+
+        <p style="text-align: center; margin-top: 30px;">
+          <a href="#red" class="pill-btn pill-red" style="font-size: 0.9rem;">
+            <span class="pill-icon">💊</span>
+            Finalement, je veux voir jusqu'où va le terrier
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- TERMINAL -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-number">003</span>
+        <h2>SYSTÈME.INFO</h2>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+        </div>
+        <div class="terminal-line"><span class="cmd">whoami</span></div>
+        <div class="terminal-line output">Un être humain qui essaie de comprendre</div>
+        <div class="terminal-line"><span class="cmd">cat /etc/systeme</span></div>
+        <div class="terminal-line output">Capitalisme v4.2 (néolibéral)</div>
+        <div class="terminal-line output">Dernière mise à jour: 1980 (Thatcher/Reagan patch)</div>
+        <div class="terminal-line output">Prochaine version: <span class="error">UNDEFINED</span></div>
+        <div class="terminal-line"><span class="cmd">ls /alternatives</span></div>
+        <div class="terminal-line output">coopératives/  communs/  économie_circulaire/  décroissance/</div>
+        <div class="terminal-line output">revenu_universel/  démocratie_directe/  municipalisme/</div>
+        <div class="terminal-line"><span class="cmd">rm -rf /croyances_limitantes/*</span></div>
+        <div class="terminal-line output"><span class="string">"Il n'y a pas d'alternative"</span> supprimé</div>
+        <div class="terminal-line output"><span class="string">"C'est comme ça"</span> supprimé</div>
+        <div class="terminal-line output"><span class="string">"On ne peut rien faire"</span> supprimé</div>
+        <div class="terminal-line"><span class="cmd">echo $AVENIR</span></div>
+        <div class="terminal-line output">À construire ensemble_</div>
+      </div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-number">004</span>
+        <h2>ET MAINTENANT ?</h2>
+      </div>
+
+      <div class="expanded-content">
+        <h3>Ce PTAL t'appartient</h3>
+        
+        <p>
+          Ce fichier HTML est un <strong>objet libre</strong>. Tu peux :
+        </p>
+        <ul>
+          <li>📥 Le télécharger et le garder hors ligne</li>
+          <li>✏️ Le modifier, l'enrichir, le personnaliser</li>
+          <li>📤 Le partager à qui tu veux</li>
+          <li>🌐 Le publier sur ton propre site (GitHub Pages, c'est gratuit)</li>
+        </ul>
+
+        <h4>L'idée derrière PTAL</h4>
+        <p>
+          <strong>Please Take A Look</strong> — ou en français, <strong>Prenez le Temps d'Analyser Librement</strong>.
+        </p>
+        <p>
+          Dans un monde de scroll infini et de contenus éphémères, PTAL propose le contraire : 
+          un objet stable, consultable hors ligne, modifiable, partageable. 
+          Un petit acte de résistance à l'économie de l'attention.
+        </p>
+        <p>
+          Crée ton propre PTAL sur le sujet qui te passionne. Documente ce qui t'indigne. 
+          Partage ce qui t'éclaire. Le savoir ne devrait jamais être enfermé derrière un mur.
+        </p>
+
+        <div class="quote-block">
+          "Un autre monde est non seulement possible, il est en route. 
+          Les jours tranquilles, je l'entends respirer."
+          <cite>— Arundhati Roy</cite>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-ascii">
+ ██████╗ ████████╗ █████╗ ██╗     
+ ██╔══██╗╚══██╔══╝██╔══██╗██║     
+ ██████╔╝   ██║   ███████║██║     
+ ██╔═══╝    ██║   ██╔══██║██║     
+ ██║        ██║   ██║  ██║███████╗
+ ╚═╝        ╚═╝   ╚═╝  ╚═╝╚══════╝
+    </div>
+    <p>
+      <strong>PTAL</strong> — Please Take A Look / Prenez le Temps d'Analyser Librement
+      <br>
+      Domaine public — Copie, modifie, partage librement
+      <br><br>
+      <em>"There is no spoon."</em>
+    </p>
+  </footer>
+
+  <script>
+    // Matrix rain effect (subtle)
+    const matrixChars = "日月火水木金土ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Typing effect for cursor
+    const cursor = document.querySelector('.cursor');
+    if (cursor) {
+      setInterval(() => {
+        cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+      }, 530);
+    }
+
+    // Easter egg: Konami code
+    let konamiCode = [];
+    const secretCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    
+    document.addEventListener('keydown', (e) => {
+      konamiCode.push(e.key);
+      konamiCode = konamiCode.slice(-10);
+      
+      if (JSON.stringify(konamiCode) === JSON.stringify(secretCode)) {
+        document.body.style.filter = 'hue-rotate(180deg)';
+        alert('🐇 Follow the white rabbit...\n\nTu as trouvé l\'easter egg !\n\n"Free your mind."');
+        setTimeout(() => {
+          document.body.style.filter = '';
+        }, 5000);
+      }
+    });
+
+    // Console message
+    console.log('%c🔴 Tu es curieux. C\'est bien.', 'color: #ff0040; font-size: 16px; font-weight: bold;');
+    console.log('%cCe PTAL est en domaine public. Inspecte, modifie, partage.', 'color: #00ff41;');
+    console.log('%c"There is no spoon."', 'color: #888; font-style: italic;');
+  </script>
+</body>
+</html>

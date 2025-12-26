@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PTAL Toolkit – Créez votre propre PTAL</title>
+  <meta name="description" content="Un outil simple pour créer, éditer et publier vos propres dashboards documentaires PTAL.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #0a0a0a;
+      --card: #111318;
+      --surface: #1a1d24;
+      --matrix: #00ff41;
+      --matrix-dim: #003b00;
+      --matrix-glow: rgba(0, 255, 65, 0.2);
+      --accent: #3b82f6;
+      --accent2: #8b5cf6;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --border: rgba(255, 255, 255, 0.1);
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--matrix);
+      text-shadow: 0 0 20px var(--matrix-glow);
+    }
+
+    .logo-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--matrix);
+    }
+
+    .btn-primary {
+      background: var(--matrix);
+      color: var(--bg);
+      border-color: var(--matrix);
+    }
+
+    .btn-primary:hover {
+      background: #00cc33;
+      box-shadow: 0 0 20px var(--matrix-glow);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover {
+      background: #2563eb;
+    }
+
+    /* MAIN LAYOUT */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 80px);
+    }
+
+    @media (max-width: 1000px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-header .icon {
+      font-size: 1.1rem;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    /* WHAT IS PTAL */
+    .intro-text {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .intro-text strong {
+      color: var(--matrix);
+    }
+
+    .intro-list {
+      margin: 12px 0;
+      padding-left: 20px;
+    }
+
+    .intro-list li {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .intro-list li::marker {
+      color: var(--matrix);
+    }
+
+    /* MY PTALS LIST */
+    .ptal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .ptal-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .ptal-item:hover {
+      border-color: var(--matrix);
+      background: rgba(0, 255, 65, 0.05);
+    }
+
+    .ptal-item.active {
+      border-color: var(--matrix);
+      background: rgba(0, 255, 65, 0.1);
+    }
+
+    .ptal-item-icon {
+      font-size: 1.2rem;
+    }
+
+    .ptal-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ptal-item-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ptal-item-date {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .ptal-item-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .ptal-item:hover .ptal-item-actions {
+      opacity: 1;
+    }
+
+    .ptal-item-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: none;
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .ptal-item-btn:hover {
+      background: var(--matrix);
+      color: var(--bg);
+    }
+
+    .ptal-item-btn.delete:hover {
+      background: var(--error);
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .empty-state .icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* EDITOR TOOLBAR */
+    .editor-toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 8px;
+    }
+
+    .toolbar-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      border-color: var(--matrix);
+      background: rgba(0, 255, 65, 0.1);
+      color: var(--matrix);
+    }
+
+    .toolbar-btn.active {
+      background: var(--matrix);
+      color: var(--bg);
+      border-color: var(--matrix);
+    }
+
+    .filename-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .filename-input:focus {
+      outline: none;
+      border-color: var(--matrix);
+      box-shadow: 0 0 0 3px var(--matrix-glow);
+    }
+
+    /* EDITOR AREA */
+    .editor-area {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      min-height: 500px;
+    }
+
+    .editor-area.view-editor {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-area.view-editor .preview-pane {
+      display: none;
+    }
+
+    .editor-area.view-preview {
+      grid-template-columns: 1fr;
+    }
+
+    .editor-area.view-preview .editor-pane {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .editor-area {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .editor-pane, .preview-pane {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pane-header {
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pane-header .label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .editor-textarea {
+      flex: 1;
+      padding: 20px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      resize: none;
+    }
+
+    .editor-textarea:focus {
+      outline: none;
+    }
+
+    .editor-textarea::placeholder {
+      color: var(--muted);
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    /* PREVIEW STYLES */
+    .preview-content h1 { font-size: 1.8rem; margin: 0 0 16px; color: var(--matrix); }
+    .preview-content h2 { font-size: 1.4rem; margin: 24px 0 12px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .preview-content h3 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--text); }
+    .preview-content p { margin: 12px 0; color: var(--muted); }
+    .preview-content ul, .preview-content ol { margin: 12px 0 12px 24px; color: var(--muted); }
+    .preview-content li { margin: 6px 0; }
+    .preview-content a { color: var(--accent); text-decoration: none; }
+    .preview-content a:hover { text-decoration: underline; }
+    .preview-content code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.85em; color: var(--matrix); }
+    .preview-content pre { background: var(--surface); padding: 16px; border-radius: var(--radius); overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); }
+    .preview-content pre code { background: none; padding: 0; }
+    .preview-content blockquote { border-left: 3px solid var(--matrix); padding: 12px 16px; margin: 16px 0; background: rgba(0, 255, 65, 0.05); border-radius: 0 var(--radius) var(--radius) 0; }
+    .preview-content blockquote p { margin: 0; color: var(--text); font-style: italic; }
+    .preview-content table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .preview-content th, .preview-content td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+    .preview-content th { background: var(--surface); font-weight: 600; }
+    .preview-content hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+    .preview-content img { max-width: 100%; border-radius: var(--radius); margin: 16px 0; }
+
+    /* STATUS BAR */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--matrix);
+    }
+
+    .status-dot.modified {
+      background: var(--warning);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--error);
+      color: white;
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 0;
+    }
+
+    .modal-body iframe {
+      width: 100%;
+      height: 70vh;
+      border: none;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 20px;
+      background: var(--card);
+      border: 1px solid var(--matrix);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 2000;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: var(--error);
+    }
+
+    /* HELP SECTION */
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .help-item {
+      padding: 10px;
+      background: var(--surface);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.75rem;
+    }
+
+    .help-item kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      margin-bottom: 4px;
+    }
+
+    .help-item span {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* TEMPLATES */
+    .templates-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .template-item {
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-item:hover {
+      border-color: var(--matrix);
+      background: rgba(0, 255, 65, 0.05);
+    }
+
+    .template-item-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .template-item-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="logo-section">
+        <div>
+          <div class="logo">PTAL Toolkit</div>
+          <div class="logo-sub">Créez · Éditez · Partagez</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="newPTAL()">
+          <span>📄</span> Nouveau
+        </button>
+        <button class="btn" onclick="openFile()">
+          <span>📂</span> Ouvrir
+        </button>
+        <button class="btn btn-primary" onclick="exportHTML()">
+          <span>🌐</span> Exporter HTML
+        </button>
+        <button class="btn" onclick="exportMD()">
+          <span>📝</span> Exporter MD
+        </button>
+        <button class="btn" onclick="showHelp()">
+          <span>❓</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <!-- WHAT IS PTAL -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">💡</span>
+          C'est quoi un PTAL ?
+        </div>
+        <div class="panel-body">
+          <p class="intro-text">
+            <strong>PTAL</strong> = <strong>P</strong>lease <strong>T</strong>ake <strong>A</strong> <strong>L</strong>ook
+            <br><em>(Prenez le Temps d'Analyser Librement)</em>
+          </p>
+          <p class="intro-text" style="margin-top: 12px;">
+            Un PTAL est un <strong>document web autonome</strong> que vous pouvez :
+          </p>
+          <ul class="intro-list">
+            <li>📥 Télécharger et consulter hors ligne</li>
+            <li>✏️ Modifier avec cet éditeur</li>
+            <li>🌐 Publier gratuitement (GitHub Pages)</li>
+            <li>📤 Partager par email ou clé USB</li>
+          </ul>
+          <p class="intro-text" style="margin-top: 12px;">
+            <strong>Pas de compte.</strong> Pas de cloud. Pas de tracking.<br>
+            Juste vous et vos idées.
+          </p>
+        </div>
+      </div>
+
+      <!-- MES PTALS -->
+      <div class="panel" style="flex: 1;">
+        <div class="panel-header">
+          <span class="icon">📚</span>
+          Mes PTAL
+          <span style="margin-left: auto; font-size: 0.75rem; color: var(--muted);" id="ptalCount">0</span>
+        </div>
+        <div class="panel-body">
+          <div class="ptal-list" id="ptalList">
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              <p>Aucun PTAL pour l'instant</p>
+              <p style="margin-top: 8px;">Cliquez sur "Nouveau" pour commencer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">📋</span>
+          Modèles rapides
+        </div>
+        <div class="panel-body">
+          <div class="templates-grid">
+            <div class="template-item" onclick="loadTemplate('doc')">
+              <div class="template-item-title">📄 Documentation</div>
+              <div class="template-item-desc">Structure classique avec sections</div>
+            </div>
+            <div class="template-item" onclick="loadTemplate('guide')">
+              <div class="template-item-title">📖 Guide pratique</div>
+              <div class="template-item-desc">Tutoriel étape par étape</div>
+            </div>
+            <div class="template-item" onclick="loadTemplate('analyse')">
+              <div class="template-item-title">🔍 Analyse</div>
+              <div class="template-item-desc">Pour décortiquer un sujet</div>
+            </div>
+            <div class="template-item" onclick="loadTemplate('ressources')">
+              <div class="template-item-title">🔗 Liste de ressources</div>
+              <div class="template-item-desc">Liens et références</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- TOOLBAR -->
+      <div class="editor-toolbar">
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="insertFormat('**', '**')" title="Gras (Ctrl+B)">𝐁</button>
+          <button class="toolbar-btn" onclick="insertFormat('*', '*')" title="Italique (Ctrl+I)"><em>I</em></button>
+          <button class="toolbar-btn" onclick="insertFormat('`', '`')" title="Code">&lt;/&gt;</button>
+          <button class="toolbar-btn" onclick="insertFormat('[', '](url)')" title="Lien (Ctrl+K)">🔗</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="insertLine('# ')" title="Titre 1">H1</button>
+          <button class="toolbar-btn" onclick="insertLine('## ')" title="Titre 2">H2</button>
+          <button class="toolbar-btn" onclick="insertLine('### ')" title="Titre 3">H3</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" onclick="insertLine('- ')" title="Liste">•</button>
+          <button class="toolbar-btn" onclick="insertLine('> ')" title="Citation">❝</button>
+          <button class="toolbar-btn" onclick="insertLine('---\n')" title="Séparateur">—</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <input type="text" class="filename-input" id="filename" value="mon-ptal.md" placeholder="nom-du-fichier.md">
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" id="viewSplit" onclick="setView('split')" title="Vue partagée">◫</button>
+          <button class="toolbar-btn" id="viewEditor" onclick="setView('editor')" title="Éditeur seul">📝</button>
+          <button class="toolbar-btn active" id="viewPreview" onclick="setView('preview')" title="Aperçu seul">👁</button>
+        </div>
+        <div class="toolbar-separator"></div>
+        <button class="btn" onclick="previewInModal()" title="Aperçu plein écran">
+          <span>🔍</span> Aperçu
+        </button>
+        <button class="btn" onclick="openInNewTab()" title="Ouvrir dans un nouvel onglet">
+          <span>↗️</span> Nouvel onglet
+        </button>
+      </div>
+
+      <!-- EDITOR -->
+      <div class="editor-area" id="editorArea">
+        <div class="editor-pane">
+          <div class="pane-header">
+            <span class="label"><span>✏️</span> Éditeur Markdown</span>
+            <span style="font-size: 0.7rem;">Écrivez en Markdown, voyez le résultat en direct</span>
+          </div>
+          <textarea class="editor-textarea" id="editor" placeholder="# Mon PTAL
+
+Écrivez votre contenu ici en **Markdown**...
+
+## C'est quoi le Markdown ?
+
+Le Markdown est un langage simple pour formater du texte :
+- **gras** avec deux astérisques
+- *italique* avec une astérisque
+- [liens](https://exemple.com) entre crochets
+- `code` entre accents graves
+
+> Les citations commencent par >
+
+C'est tout ! Commencez à écrire."></textarea>
+        </div>
+        <div class="preview-pane">
+          <div class="pane-header">
+            <span class="label"><span>👁</span> Aperçu</span>
+            <span style="font-size: 0.7rem;">Rendu en temps réel</span>
+          </div>
+          <div class="preview-content" id="preview"></div>
+        </div>
+      </div>
+
+      <!-- STATUS BAR -->
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Prêt</span>
+        </div>
+        <div class="status-item">
+          <span id="charCount">0</span> caractères · <span id="wordCount">0</span> mots · <span id="lineCount">0</span> lignes
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL PREVIEW -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>👁</span>
+          <span id="modalTitle">Aperçu du PTAL</span>
+        </div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="modalFrame"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">Fermer</button>
+        <button class="btn" onclick="openInNewTab()">↗️ Nouvel onglet</button>
+        <button class="btn btn-primary" onclick="exportHTML()">🌐 Exporter HTML</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP MODAL -->
+  <div class="modal-overlay" id="helpModal" onclick="closeHelp(event)">
+    <div class="modal" style="max-width: 600px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>❓</span>
+          Aide & Raccourcis
+        </div>
+        <button class="modal-close" onclick="closeHelp()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <h3 style="margin-bottom: 16px; font-size: 1rem;">Raccourcis clavier</h3>
+        <div class="help-grid">
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>B</kbd><span>Gras</span></div>
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>I</kbd><span>Italique</span></div>
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Lien</span></div>
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>S</kbd><span>Sauvegarder</span></div>
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>E</kbd><span>Exporter MD</span></div>
+          <div class="help-item"><kbd>Ctrl</kbd>+<kbd>N</kbd><span>Nouveau</span></div>
+        </div>
+        
+        <h3 style="margin: 24px 0 16px; font-size: 1rem;">Syntaxe Markdown</h3>
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface); padding: 16px; border-radius: var(--radius);">
+          <div style="margin-bottom: 8px;"><code># Titre 1</code></div>
+          <div style="margin-bottom: 8px;"><code>## Titre 2</code></div>
+          <div style="margin-bottom: 8px;"><code>**gras**</code> → <strong>gras</strong></div>
+          <div style="margin-bottom: 8px;"><code>*italique*</code> → <em>italique</em></div>
+          <div style="margin-bottom: 8px;"><code>[texte](url)</code> → lien</div>
+          <div style="margin-bottom: 8px;"><code>`code`</code> → <code style="background: var(--card); padding: 2px 6px; border-radius: 3px;">code</code></div>
+          <div style="margin-bottom: 8px;"><code>- item</code> → liste</div>
+          <div><code>> citation</code> → bloc citation</div>
+        </div>
+
+        <h3 style="margin: 24px 0 16px; font-size: 1rem;">Publier votre PTAL</h3>
+        <ol style="font-size: 0.85rem; color: var(--muted); padding-left: 20px;">
+          <li style="margin-bottom: 8px;">Exportez en HTML (bouton vert)</li>
+          <li style="margin-bottom: 8px;">Créez un compte GitHub (gratuit)</li>
+          <li style="margin-bottom: 8px;">Créez un "repository"</li>
+          <li style="margin-bottom: 8px;">Uploadez le fichier (renommé en index.html)</li>
+          <li>Activez GitHub Pages dans Settings</li>
+        </ol>
+        <p style="font-size: 0.85rem; color: var(--matrix); margin-top: 12px;">
+          → Votre PTAL sera accessible sur https://votre-pseudo.github.io/votre-repo/
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FILE INPUT (hidden) -->
+  <input type="file" id="fileInput" accept=".md,.txt,.html" onchange="handleFileOpen(event)">
+
+  <script>
+    // =====================================================
+    // ÉTAT DE L'APPLICATION
+    // =====================================================
+    let ptals = JSON.parse(localStorage.getItem('ptals') || '[]');
+    let currentPtalId = null;
+    let isModified = false;
+
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const filename = document.getElementById('filename');
+
+    // =====================================================
+    // MARKDOWN PARSER (simple)
+    // =====================================================
+    function parseMarkdown(md) {
+      let html = md
+        // Escape HTML
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // Headers
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        // Bold & Italic
+        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Code blocks
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+        // Images
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+        // Blockquotes
+        .replace(/^&gt; (.*$)/gm, '<blockquote><p>$1</p></blockquote>')
+        // Horizontal rule
+        .replace(/^---$/gm, '<hr>')
+        // Lists
+        .replace(/^\- (.*$)/gm, '<li>$1</li>')
+        .replace(/^\* (.*$)/gm, '<li>$1</li>')
+        .replace(/^\d+\. (.*$)/gm, '<li>$1</li>')
+        // Paragraphs
+        .replace(/\n\n/g, '</p><p>')
+        // Line breaks
+        .replace(/\n/g, '<br>');
+      
+      // Wrap in paragraph if not already wrapped
+      if (!html.startsWith('<')) {
+        html = '<p>' + html + '</p>';
+      }
+      
+      // Fix consecutive list items
+      html = html.replace(/<\/li><br><li>/g, '</li><li>');
+      html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+      html = html.replace(/<\/ul><ul>/g, '');
+      
+      // Fix consecutive blockquotes
+      html = html.replace(/<\/blockquote><br><blockquote>/g, '</blockquote><blockquote>');
+      
+      return html;
+    }
+
+    // =====================================================
+    // MISE À JOUR DE L'APERÇU
+    // =====================================================
+    function updatePreview() {
+      preview.innerHTML = parseMarkdown(editor.value);
+      updateStats();
+      markModified();
+    }
+
+    function updateStats() {
+      const text = editor.value;
+      document.getElementById('charCount').textContent = text.length;
+      document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('lineCount').textContent = text.split('\n').length;
+    }
+
+    function markModified() {
+      if (!isModified) {
+        isModified = true;
+        document.getElementById('statusDot').classList.add('modified');
+        document.getElementById('statusText').textContent = 'Modifié';
+      }
+    }
+
+    function markSaved() {
+      isModified = false;
+      document.getElementById('statusDot').classList.remove('modified');
+      document.getElementById('statusText').textContent = 'Sauvegardé';
+    }
+
+    // =====================================================
+    // GESTION DES PTALS
+    // =====================================================
+    function savePTAL() {
+      const name = filename.value.replace('.md', '').replace('.html', '');
+      const content = editor.value;
+      const now = new Date().toISOString();
+
+      if (currentPtalId) {
+        // Update existing
+        const ptal = ptals.find(p => p.id === currentPtalId);
+        if (ptal) {
+          ptal.name = name;
+          ptal.content = content;
+          ptal.modified = now;
+        }
+      } else {
+        // Create new
+        const newPtal = {
+          id: Date.now().toString(),
+          name: name,
+          content: content,
+          created: now,
+          modified: now
+        };
+        ptals.unshift(newPtal);
+        currentPtalId = newPtal.id;
+      }
+
+      localStorage.setItem('ptals', JSON.stringify(ptals));
+      renderPtalList();
+      markSaved();
+      showToast('💾 PTAL sauvegardé !');
+    }
+
+    function loadPTAL(id) {
+      const ptal = ptals.find(p => p.id === id);
+      if (ptal) {
+        editor.value = ptal.content;
+        filename.value = ptal.name + '.md';
+        currentPtalId = id;
+        updatePreview();
+        markSaved();
+        renderPtalList();
+      }
+    }
+
+    function deletePTAL(id, event) {
+      event.stopPropagation();
+      if (confirm('Supprimer ce PTAL ?')) {
+        ptals = ptals.filter(p => p.id !== id);
+        localStorage.setItem('ptals', JSON.stringify(ptals));
+        if (currentPtalId === id) {
+          newPTAL();
+        }
+        renderPtalList();
+        showToast('🗑️ PTAL supprimé');
+      }
+    }
+
+    function newPTAL() {
+      if (isModified && !confirm('Vous avez des modifications non sauvegardées. Continuer ?')) {
+        return;
+      }
+      editor.value = '';
+      filename.value = 'nouveau-ptal.md';
+      currentPtalId = null;
+      isModified = false;
+      updatePreview();
+      document.getElementById('statusDot').classList.remove('modified');
+      document.getElementById('statusText').textContent = 'Nouveau document';
+    }
+
+    function renderPtalList() {
+      const list = document.getElementById('ptalList');
+      document.getElementById('ptalCount').textContent = ptals.length;
+
+      if (ptals.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>Aucun PTAL pour l'instant</p>
+            <p style="margin-top: 8px;">Cliquez sur "Nouveau" pour commencer</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = ptals.map(ptal => {
+        const date = new Date(ptal.modified).toLocaleDateString('fr-FR', { 
+          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+        });
+        const isActive = ptal.id === currentPtalId;
+        return `
+          <div class="ptal-item ${isActive ? 'active' : ''}" onclick="loadPTAL('${ptal.id}')">
+            <span class="ptal-item-icon">📄</span>
+            <div class="ptal-item-info">
+              <div class="ptal-item-name">${ptal.name}</div>
+              <div class="ptal-item-date">${date}</div>
+            </div>
+            <div class="ptal-item-actions">
+              <button class="ptal-item-btn delete" onclick="deletePTAL('${ptal.id}', event)" title="Supprimer">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =====================================================
+    // TEMPLATES
+    // =====================================================
+    const templates = {
+      doc: `# Mon Document
+
+## Introduction
+
+Présentez votre sujet ici. Expliquez pourquoi c'est important et ce que le lecteur va apprendre.
+
+## Section 1
+
+Développez votre premier point...
+
+## Section 2
+
+Développez votre deuxième point...
+
+## Conclusion
+
+Résumez les points clés et invitez à l'action.
+
+---
+
+*Document créé avec PTAL Toolkit*`,
+
+      guide: `# Guide : [Titre de votre guide]
+
+## Avant de commencer
+
+**Prérequis :**
+- Élément 1
+- Élément 2
+
+**Temps estimé :** X minutes
+
+---
+
+## Étape 1 : [Titre]
+
+Expliquez la première étape...
+
+## Étape 2 : [Titre]
+
+Expliquez la deuxième étape...
+
+## Étape 3 : [Titre]
+
+Expliquez la troisième étape...
+
+---
+
+## Résultat final
+
+Décrivez ce que l'utilisateur devrait avoir obtenu.
+
+## En cas de problème
+
+Listez les problèmes courants et leurs solutions.
+
+---
+
+*Guide créé avec PTAL Toolkit*`,
+
+      analyse: `# Analyse : [Sujet]
+
+## Contexte
+
+Présentez le sujet et pourquoi il mérite d'être analysé.
+
+## Les faits
+
+> "Citation pertinente ou donnée clé"
+
+- Fait 1 (source)
+- Fait 2 (source)
+- Fait 3 (source)
+
+## Les différentes perspectives
+
+### Point de vue A
+...
+
+### Point de vue B
+...
+
+## Mon analyse
+
+Ce que j'en pense, arguments et nuances...
+
+## Conclusion
+
+Synthèse et ouverture vers d'autres questions.
+
+---
+
+**Sources :**
+- [Source 1](url)
+- [Source 2](url)
+
+*Analyse créée avec PTAL Toolkit*`,
+
+      ressources: `# Ressources : [Thème]
+
+## 📚 Livres
+
+- **Titre 1** — Auteur — [lien](url)
+  *Courte description*
+  
+- **Titre 2** — Auteur — [lien](url)
+  *Courte description*
+
+## 🎬 Vidéos
+
+- [Titre de la vidéo](url) — Chaîne
+- [Titre de la vidéo](url) — Chaîne
+
+## 🔗 Sites web
+
+- [Nom du site](url) — Description
+- [Nom du site](url) — Description
+
+## 🎧 Podcasts
+
+- [Titre du podcast](url) — Description
+
+## 🛠️ Outils
+
+- [Nom de l'outil](url) — À quoi ça sert
+
+---
+
+*Liste compilée le ${new Date().toLocaleDateString('fr-FR')} avec PTAL Toolkit*`
+    };
+
+    function loadTemplate(name) {
+      if (isModified && !confirm('Vous avez des modifications non sauvegardées. Charger le modèle ?')) {
+        return;
+      }
+      editor.value = templates[name] || '';
+      filename.value = name + '-ptal.md';
+      currentPtalId = null;
+      updatePreview();
+      showToast('📋 Modèle chargé');
+    }
+
+    // =====================================================
+    // EXPORT
+    // =====================================================
+    function generateHTML() {
+      const title = filename.value.replace('.md', '').replace('.html', '');
+      const content = parseMarkdown(editor.value);
+      
+      return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title} – PTAL</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #fafafa;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 60px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 { font-size: 2.2rem; margin-bottom: 24px; color: #1a1a2e; }
+    h2 { font-size: 1.5rem; margin: 32px 0 16px; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { font-size: 1.2rem; margin: 24px 0 12px; color: #4a5568; }
+    p { margin: 16px 0; color: #4a5568; }
+    a { color: #3b82f6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 16px 0 16px 24px; color: #4a5568; }
+    li { margin: 8px 0; }
+    code { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-family: 'SF Mono', Monaco, monospace; font-size: 0.9em; color: #7c3aed; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; }
+    pre code { background: none; color: inherit; padding: 0; }
+    blockquote { border-left: 4px solid #3b82f6; padding: 16px 20px; margin: 20px 0; background: #eff6ff; border-radius: 0 8px 8px 0; }
+    blockquote p { margin: 0; color: #1e40af; font-style: italic; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px; border: 1px solid #e2e8f0; text-align: left; }
+    th { background: #f8fafc; font-weight: 600; }
+    img { max-width: 100%; border-radius: 8px; margin: 20px 0; }
+    .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #94a3b8; text-align: center; }
+    .footer a { color: #64748b; }
+    @media (max-width: 600px) {
+      body { padding: 20px 16px; }
+      .container { padding: 30px 20px; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    ${content}
+    <div class="footer">
+      <p>Créé avec <a href="https://github.com" target="_blank">PTAL Toolkit</a> – Please Take A Look</p>
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    function exportHTML() {
+      const html = generateHTML();
+      const name = filename.value.replace('.md', '').replace('.html', '');
+      downloadFile(html, name + '.html', 'text/html');
+      showToast('🌐 HTML exporté !');
+    }
+
+    function exportMD() {
+      const name = filename.value.replace('.md', '').replace('.html', '');
+      downloadFile(editor.value, name + '.md', 'text/markdown');
+      showToast('📝 Markdown exporté !');
+    }
+
+    function downloadFile(content, filename, type) {
+      const blob = new Blob([content], { type: type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // =====================================================
+    // APERÇU
+    // =====================================================
+    function previewInModal() {
+      const html = generateHTML();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      
+      document.getElementById('modalFrame').src = url;
+      document.getElementById('modalTitle').textContent = filename.value.replace('.md', '');
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function openInNewTab() {
+      const html = generateHTML();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }
+
+    function closeModal(event) {
+      if (!event || event.target === document.getElementById('modalOverlay')) {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.getElementById('modalFrame').src = '';
+      }
+    }
+
+    // =====================================================
+    // VUE
+    // =====================================================
+    function setView(view) {
+      const area = document.getElementById('editorArea');
+      area.classList.remove('view-editor', 'view-preview');
+      
+      document.querySelectorAll('.toolbar-group .toolbar-btn').forEach(btn => btn.classList.remove('active'));
+      
+      if (view === 'editor') {
+        area.classList.add('view-editor');
+        document.getElementById('viewEditor').classList.add('active');
+      } else if (view === 'preview') {
+        area.classList.add('view-preview');
+        document.getElementById('viewPreview').classList.add('active');
+      } else {
+        document.getElementById('viewSplit').classList.add('active');
+      }
+    }
+
+    // =====================================================
+    // FORMATAGE
+    // =====================================================
+    function insertFormat(before, after) {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const text = editor.value;
+      const selected = text.substring(start, end);
+      
+      editor.value = text.substring(0, start) + before + selected + after + text.substring(end);
+      editor.focus();
+      editor.setSelectionRange(start + before.length, start + before.length + selected.length);
+      updatePreview();
+    }
+
+    function insertLine(prefix) {
+      const start = editor.selectionStart;
+      const text = editor.value;
+      
+      // Find start of current line
+      let lineStart = start;
+      while (lineStart > 0 && text[lineStart - 1] !== '\n') lineStart--;
+      
+      editor.value = text.substring(0, lineStart) + prefix + text.substring(lineStart);
+      editor.focus();
+      editor.setSelectionRange(lineStart + prefix.length, lineStart + prefix.length);
+      updatePreview();
+    }
+
+    // =====================================================
+    // FICHIERS
+    // =====================================================
+    function openFile() {
+      document.getElementById('fileInput').click();
+    }
+
+    function handleFileOpen(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        let content = e.target.result;
+        
+        // Si c'est un HTML, essayer d'extraire le contenu
+        if (file.name.endsWith('.html')) {
+          const match = content.match(/<div class="container">([\s\S]*?)<div class="footer">/);
+          if (match) {
+            // C'est un PTAL exporté, mais on garde le HTML comme référence
+            showToast('📂 Fichier HTML chargé (édition limitée)');
+          }
+        }
+        
+        editor.value = content;
+        filename.value = file.name;
+        currentPtalId = null;
+        updatePreview();
+        showToast('📂 Fichier ouvert !');
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // =====================================================
+    // AIDE
+    // =====================================================
+    function showHelp() {
+      document.getElementById('helpModal').classList.add('active');
+    }
+
+    function closeHelp(event) {
+      if (!event || event.target === document.getElementById('helpModal')) {
+        document.getElementById('helpModal').classList.remove('active');
+      }
+    }
+
+    // =====================================================
+    // TOAST
+    // =====================================================
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.toggle('error', isError);
+      toast.classList.add('active');
+      setTimeout(() => toast.classList.remove('active'), 3000);
+    }
+
+    // =====================================================
+    // RACCOURCIS CLAVIER
+    // =====================================================
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey)) {
+        switch(e.key.toLowerCase()) {
+          case 's':
+            e.preventDefault();
+            savePTAL();
+            break;
+          case 'b':
+            e.preventDefault();
+            insertFormat('**', '**');
+            break;
+          case 'i':
+            e.preventDefault();
+            insertFormat('*', '*');
+            break;
+          case 'k':
+            e.preventDefault();
+            insertFormat('[', '](url)');
+            break;
+          case 'e':
+            e.preventDefault();
+            exportMD();
+            break;
+          case 'n':
+            e.preventDefault();
+            newPTAL();
+            break;
+        }
+      }
+      
+      if (e.key === 'Escape') {
+        closeModal();
+        closeHelp();
+      }
+    });
+
+    // =====================================================
+    // INITIALISATION
+    // =====================================================
+    editor.addEventListener('input', updatePreview);
+    
+    // Charger le dernier PTAL ou afficher le template
+    if (ptals.length > 0) {
+      loadPTAL(ptals[0].id);
+    } else {
+      editor.value = `# Bienvenue dans PTAL Toolkit ! 👋
+
+## Qu'est-ce qu'un PTAL ?
+
+**PTAL** signifie **P**lease **T**ake **A** **L**ook — ou en français : *Prenez le Temps d'Analyser Librement*.
+
+C'est un **document web autonome** que vous pouvez :
+- 📥 Télécharger et consulter hors ligne
+- ✏️ Modifier avec cet éditeur
+- 🌐 Publier gratuitement sur internet
+- 📤 Partager avec qui vous voulez
+
+## Comment ça marche ?
+
+1. **Écrivez** votre contenu dans l'éditeur (à gauche)
+2. **Voyez** le résultat en temps réel (à droite)
+3. **Exportez** en HTML pour publier en ligne
+4. **Partagez** votre PTAL avec le monde !
+
+## Le Markdown, c'est simple
+
+\`\`\`
+# Titre principal
+## Sous-titre
+**gras** et *italique*
+[un lien](https://exemple.com)
+- liste à puces
+> une citation
+\`\`\`
+
+---
+
+Maintenant, effacez ce texte et créez votre propre PTAL ! 🚀`;
+      updatePreview();
+    }
+    
+    renderPtalList();
+    setView('split');
+  </script>
+</body>
+</html>

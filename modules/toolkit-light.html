@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PTAL Toolkit v2.0 Pro</title>
+
+<style>
+/* ===================== VARIABLES ===================== */
+:root{
+  --primary:#667eea;
+  --primary-dark:#5568d3;
+  --secondary:#764ba2;
+  --success:#198754;
+  --warning:#ffc107;
+  --info:#0dcaf0;
+  --danger:#dc3545;
+  --bg-light:#f8f9fa;
+  --bg-dark:#1a1a2e;
+  --text-dark:#2c3e50;
+  --text-light:#ecf0f1;
+  --border:#dee2e6;
+}
+
+/* ===================== BASE ===================== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg-light);
+  color:var(--text-dark);
+  transition:.3s;
+}
+body.dark-mode{
+  background:var(--bg-dark);
+  color:var(--text-light);
+}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===================== HEADER ===================== */
+.app-header{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;
+  padding:1rem 1.5rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.app-title{font-size:1.4rem;font-weight:700}
+.app-controls{display:flex;gap:.5rem;align-items:center}
+.btn,.btn-icon{
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+}
+.btn{
+  background:#fff;
+  color:var(--primary);
+  padding:.45rem .9rem;
+  font-weight:600;
+}
+.btn-icon{
+  background:rgba(255,255,255,.2);
+  color:#fff;
+  font-size:1.2rem;
+  padding:.4rem;
+}
+.btn-icon:hover{background:rgba(255,255,255,.35)}
+
+/* ===================== LAYOUT ===================== */
+.container{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  height:calc(100vh - 70px);
+}
+.panel{
+  display:flex;
+  flex-direction:column;
+  border-right:1px solid var(--border);
+}
+.panel:last-child{border-right:none}
+.panel-header{
+  padding:.75rem 1rem;
+  font-weight:600;
+  background:var(--bg-light);
+  border-bottom:1px solid var(--border);
+}
+body.dark-mode .panel-header{background:#0f3460}
+.panel-content{flex:1;overflow:auto;padding:1rem}
+
+/* ===================== EDITOR ===================== */
+textarea{
+  width:100%;
+  height:100%;
+  border:none;
+  resize:none;
+  font-family:monospace;
+  font-size:15px;
+  line-height:1.7;
+  outline:none;
+}
+body.dark-mode textarea{
+  background:#0f3460;
+  color:var(--text-light);
+}
+
+/* ===================== PREVIEW ===================== */
+#preview h1{font-size:2.4rem;border-bottom:4px solid var(--primary);padding-bottom:.5rem}
+#preview h2{font-size:1.8rem;margin-top:2rem;color:var(--primary-dark)}
+#preview h3{font-size:1.4rem;margin-top:1.5rem}
+#preview p{margin:1rem 0;line-height:1.8}
+#preview ul{margin-left:2rem;margin-bottom:1rem}
+#preview blockquote{
+  border-left:4px solid var(--primary);
+  padding:.8rem 1rem;
+  background:var(--bg-light);
+  font-style:italic;
+}
+body.dark-mode #preview blockquote{background:#16213e}
+
+/* ===================== TOC ===================== */
+.toc{
+  border:2px solid var(--border);
+  border-radius:10px;
+  margin-bottom:2rem;
+  overflow:hidden;
+}
+.toc-header{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;
+  padding:.75rem 1rem;
+  display:flex;
+  justify-content:space-between;
+  cursor:pointer;
+}
+.toc-list{list-style:none;padding:1rem}
+.toc-list.collapsed{display:none}
+.toc-item.level-1{font-weight:700}
+.toc-item.level-2{padding-left:1.5rem}
+.toc-item.level-3{padding-left:3rem;font-size:.9rem}
+
+/* ===================== BLOCKS ===================== */
+.block{
+  border-left:5px solid;
+  padding:1rem 1.25rem;
+  margin:2rem 0;
+  border-radius:8px;
+}
+.block-info{border-color:var(--info);background:#e7f6fc}
+.block-critique{border-color:var(--warning);background:#fff3cd}
+.block-source{border-color:var(--success);background:#e8f5e9}
+.block-agir{border-color:var(--danger);background:#f8d7da}
+.block-header{font-weight:700;margin-bottom:.5rem;text-transform:uppercase;font-size:.8rem}
+
+/* ===================== SOURCES ===================== */
+.sources-summary{
+  background:linear-gradient(135deg,var(--success),#20c997);
+  color:#fff;
+  padding:1.5rem;
+  border-radius:10px;
+  margin:3rem 0 1.5rem;
+}
+.sources-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:1rem;
+}
+.stat{text-align:center}
+.stat-number{font-size:2rem;font-weight:800}
+
+/* ===================== STATUS ===================== */
+.status-bar{
+  padding:.4rem 1rem;
+  font-size:.85rem;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+}
+
+/* ===================== MOBILE ===================== */
+@media(max-width:900px){
+  .container{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header class="app-header">
+  <div class="app-title">📋 PTAL Toolkit v2.0 Pro</div>
+  <div class="app-controls">
+    <button class="btn-icon" onclick="toggleDarkMode()">🌓</button>
+    <button class="btn" onclick="exportHTML()">Export HTML</button>
+    <button class="btn" onclick="exportMD()">Export MD</button>
+    <button class="btn" onclick="exportPDF()">PDF</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ===================== EDITOR ===================== -->
+<div class="panel">
+  <div class="panel-header">✍️ Éditeur Markdown</div>
+  <div class="panel-content">
+<textarea id="editor">
+# Exemple PTAL
+
+## Introduction
+
+:::info
+Information factuelle officielle
+:::
+
+:::critique
+Analyse critique du cadre institutionnel
+:::
+
+:::source
+Source : [SPF Sécurité Sociale](https://socialsecurity.belgium.be)
+:::
+
+:::agir
+- Vérifier ses droits
+- Contacter un CPAS
+- S'informer
+:::
+</textarea>
+  </div>
+  <div class="status-bar">
+    <span id="char-count">0 caractères</span>
+    <span id="word-count">0 mots</span>
+  </div>
+</div>
+
+<!-- ===================== PREVIEW ===================== -->
+<div class="panel">
+  <div class="panel-header">👁 Aperçu</div>
+  <div class="panel-content" id="preview"></div>
+</div>
+
+</div>
+
+<script>
+/* ===================== CORE ===================== */
+const editor=document.getElementById("editor");
+const preview=document.getElementById("preview");
+const charCount=document.getElementById("char-count");
+const wordCount=document.getElementById("word-count");
+
+const officialDomains=[
+  "belgium.be","socialsecurity.belgium.be","onem.be","inami.fgov.be","statbel.fgov.be"
+];
+
+function toggleDarkMode(){
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("ptal_dark",document.body.classList.contains("dark-mode"));
+}
+if(localStorage.getItem("ptal_dark")==="true"){
+  document.body.classList.add("dark-mode");
+}
+
+/* ===================== PARSERS ===================== */
+function parseSemanticBlocks(text){
+  return text.replace(/:::(\w+)\n([\s\S]*?):::/g,(m,type,content)=>{
+    const labels={info:"Information",critique:"Analyse",source:"Source",agir:"Agir"};
+    return `<div class="block block-${type}">
+      <div class="block-header">${labels[type]||type}</div>
+      <div>${content.trim().replace(/\n/g,"<br>")}</div>
+    </div>`;
+  });
+}
+
+function markdownToHTML(text){
+  text=parseSemanticBlocks(text);
+  text=text.replace(/^### (.*)$/gim,"<h3>$1</h3>");
+  text=text.replace(/^## (.*)$/gim,"<h2>$1</h2>");
+  text=text.replace(/^# (.*)$/gim,"<h1>$1</h1>");
+  text=text.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");
+  text=text.replace(/\*(.*?)\*/g,"<em>$1</em>");
+  text=text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  text=text.replace(/^> (.*)$/gim,"<blockquote>$1</blockquote>");
+  text=text.replace(/^- (.*)$/gim,"<li>$1</li>");
+  text=text.replace(/(<li>.*<\/li>)/s,"<ul>$1</ul>");
+  text=text.split("\n\n").map(p=>{
+    if(p.match(/^</))return p;
+    return "<p>"+p+"</p>";
+  }).join("");
+  return text;
+}
+
+/* ===================== TOC ===================== */
+function generateTOC(html){
+  const tmp=document.createElement("div");
+  tmp.innerHTML=html;
+  const heads=tmp.querySelectorAll("h1,h2,h3");
+  if(!heads.length)return{toc:"",content:html};
+
+  let items="";
+  heads.forEach((h,i)=>{
+    const lvl=h.tagName[1];
+    const id="sec-"+i;
+    h.id=id;
+    items+=`<li class="toc-item level-${lvl}">
+      <a href="#${id}">${h.textContent}</a>
+    </li>`;
+  });
+
+  return{
+    toc:`<div class="toc">
+      <div class="toc-header" onclick="toggleTOC()">
+        <strong>📑 Table des matières</strong>
+        <span id="toc-toggle">Replier</span>
+      </div>
+      <ul class="toc-list" id="toc-list">${items}</ul>
+    </div>`,
+    content:tmp.innerHTML
+  };
+}
+
+function toggleTOC(){
+  const list=document.getElementById("toc-list");
+  const btn=document.getElementById("toc-toggle");
+  const c=list.classList.toggle("collapsed");
+  btn.textContent=c?"Déplier":"Replier";
+}
+
+/* ===================== SOURCES ===================== */
+function extractSources(text){
+  const r=/\[[^\]]+\]\(([^)]+)\)/g;
+  const out=[];
+  let m;
+  while((m=r.exec(text))!==null){
+    if(!out.includes(m[1]))out.push(m[1]);
+  }
+  return out.map(u=>({url:u,official:officialDomains.some(d=>u.includes(d))}));
+}
+
+function renderSources(sources){
+  if(!sources.length)return"";
+  const off=sources.filter(s=>s.official).length;
+  const pct=Math.round(off/sources.length*100);
+  return `<div class="sources-summary">
+    <h2>Analyse des sources</h2>
+    <div class="sources-stats">
+      <div class="stat"><span class="stat-number">${sources.length}</span>Sources</div>
+      <div class="stat"><span class="stat-number">${off}</span>Officielles</div>
+      <div class="stat"><span class="stat-number">${pct}%</span>Fiabilité</div>
+    </div>
+  </div>`;
+}
+
+/* ===================== UPDATE ===================== */
+function update(){
+  const txt=editor.value;
+  let html=markdownToHTML(txt);
+  const toc=generateTOC(html);
+  const sources=extractSources(txt);
+  preview.innerHTML=toc.toc+toc.content+renderSources(sources);
+
+  charCount.textContent=txt.length+" caractères";
+  wordCount.textContent=(txt.trim()?txt.trim().split(/\s+/).length:0)+" mots";
+
+  localStorage.setItem("ptal_content",txt);
+}
+editor.addEventListener("input",update);
+
+/* ===================== EXPORT ===================== */
+function exportHTML(){
+  const b=new Blob([preview.innerHTML],{type:"text/html"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);
+  a.download="ptal.html";
+  a.click();
+}
+function exportMD(){
+  const b=new Blob([editor.value],{type:"text/markdown"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);
+  a.download="ptal.md";
+  a.click();
+}
+function exportPDF(){window.print()}
+
+/* ===================== INIT ===================== */
+const saved=localStorage.getItem("ptal_content");
+if(saved)editor.value=saved;
+update();
+</script>
+
+</body>
+</html>
