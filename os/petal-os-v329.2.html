@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PéTAL OS — v329.2</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-primary: #fafafa;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f5f5f5;
+      --bg-module: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4a4a4a;
+      --text-muted: #717171;
+      --accent: #2563eb;
+      --accent-light: #3b82f6;
+      --accent-soft: rgba(37, 99, 235, 0.08);
+      --success: #059669;
+      --warning: #d97706;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --font-display: 'Merriweather', Georgia, serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+      --nav-item-padding: 0.75rem 1.25rem;
+      --transition: 0.2s ease;
+    }
+
+    .theme-dark {
+      --bg-primary: #111111;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #222222;
+      --bg-module: #1a1a1a;
+      --text-primary: #f5f5f5;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #60a5fa;
+      --accent-light: #93c5fd;
+      --accent-soft: rgba(96, 165, 250, 0.1);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .theme-warm {
+      --bg-primary: #fef7ed;
+      --bg-secondary: #fffbf5;
+      --bg-tertiary: #fef3e2;
+      --bg-module: #fffbf5;
+      --text-primary: #292524;
+      --text-secondary: #57534e;
+      --text-muted: #78716c;
+      --accent: #ea580c;
+      --accent-light: #f97316;
+      --accent-soft: rgba(234, 88, 12, 0.08);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-strong: rgba(0, 0, 0, 0.12);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      transition: background var(--transition), color var(--transition);
+      line-height: 1.6;
+    }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.3; }
+
+    .system-bar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .sys-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .sys-brand h1 { font-family: var(--font-body); font-size: 1rem; font-weight: 600; }
+    .sys-version { font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--accent-soft); color: var(--accent); border-radius: 20px; font-weight: 500; }
+    .sys-status { font-size: 0.75rem; color: var(--text-muted); }
+    .sys-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+      padding: 0.5rem 0.875rem;
+      font-family: inherit; font-size: 0.8125rem; font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .btn:active { transform: scale(0.97); }
+    .btn-icon { width: 2.25rem; padding: 0.5rem; }
+    .menu-toggle { display: flex; }
+
+    .layout { flex: 1; display: flex; flex-direction: column; }
+
+    .nav-panel {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg-secondary);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+    .nav-panel.is-open { transform: translateX(0); }
+    .nav-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
+    .nav-header h2 { font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .nav-close { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--text-muted); background: none; border: none; cursor: pointer; border-radius: var(--radius); }
+    .nav-close:hover { background: var(--accent-soft); color: var(--accent); }
+    .nav-list { flex: 1; overflow-y: auto; padding: 0.5rem 0; list-style: none; }
+    .nav-item { padding: var(--nav-item-padding); font-size: 0.9rem; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); border-left: 3px solid transparent; }
+    .nav-item:hover { background: var(--accent-soft); color: var(--text-primary); }
+    .nav-item.is-active { background: var(--accent-soft); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .nav-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.3); opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .nav-overlay.is-visible { opacity: 1; visibility: visible; }
+
+    .module-view { flex: 1; min-height: 50vh; background: var(--bg-tertiary); position: relative; overflow: auto; }
+    .module-content { padding: 1.5rem; height: 100%; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .meta-panel { background: var(--bg-secondary); border-top: 1px solid var(--border); }
+    .meta-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .meta-header h2 { font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .meta-toggle { width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: transform 0.3s; }
+    .meta-panel.is-collapsed .meta-toggle { transform: rotate(180deg); }
+    .meta-content { padding: 1.25rem; max-height: 40vh; overflow-y: auto; transition: all 0.3s; }
+    .meta-panel.is-collapsed .meta-content { max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+    .meta-content p { font-size: 0.875rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 0.75rem; }
+    .meta-content .highlight { color: var(--accent); font-weight: 600; }
+    .meta-content .source { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+
+    @media (min-width: 768px) {
+      .menu-toggle { display: none; }
+      .nav-overlay { display: none; }
+      .layout { flex-direction: row; height: calc(100dvh - 53px); }
+      .nav-panel { position: relative; transform: none; width: 200px; min-width: 200px; border-right: 1px solid var(--border); box-shadow: none; }
+      .nav-close { display: none; }
+      .module-view { min-height: auto; }
+      .meta-panel { width: 260px; min-width: 260px; border-top: none; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+      .meta-header { cursor: default; }
+      .meta-toggle { display: none; }
+      .meta-content { flex: 1; max-height: none; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+    ::selection { background: var(--accent); color: white; }
+
+    /* Module Accueil */
+    .mod-accueil { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 100%; padding: 2rem; }
+    .mod-accueil .logo { font-size: 3rem; margin-bottom: 1rem; }
+    .mod-accueil h2 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .mod-accueil p { color: var(--text-secondary); max-width: 400px; }
+    .mod-accueil .version-badge { margin-top: 1.5rem; padding: 0.5rem 1rem; background: var(--accent-soft); border-radius: 20px; font-size: 0.8rem; color: var(--accent); font-weight: 500; }
+
+    /* Module Perception */
+    .mod-perception .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 3px; }
+    .mod-perception .cell { aspect-ratio: 1; background: var(--bg-module); border-radius: 4px; cursor: crosshair; transition: all 0.15s; border: 1px solid var(--border); }
+    .mod-perception .cell:hover { background: var(--accent); transform: scale(1.05); }
+    .mod-perception .cell.active { background: var(--accent); }
+
+    /* Module Mémoire */
+    .mod-memoire { max-width: 550px; margin: 0 auto; }
+    .mod-memoire .memory { padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .mod-memoire .memory-date { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.25rem; font-family: var(--font-mono); }
+    .mod-memoire .memory-text { font-family: var(--font-display); font-size: 1.1rem; font-style: italic; color: var(--text-secondary); }
+    .mod-memoire input { width: 100%; margin-top: 1rem; padding: 0.75rem 1rem; background: var(--bg-module); border: 1px solid var(--border-strong); border-radius: var(--radius); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; }
+    .mod-memoire input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    /* Module Rêverie */
+    .mod-reverie { position: absolute; inset: 0; padding: 0 !important; }
+    .mod-reverie canvas { width: 100%; height: 100%; display: block; }
+    .mod-reverie .hint { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: var(--text-muted); background: var(--bg-module); padding: 0.5rem 1rem; border-radius: 20px; box-shadow: var(--shadow-md); }
+
+    /* ══════════════════════════════════════════════════════════════
+       MODULE ÉCHO - VERSION OFFICIELLE 329.2
+       ══════════════════════════════════════════════════════════════ */
+    .mod-echo { padding: 0.5rem; }
+    
+    .echo-input-area {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      text-align: center;
+    }
+    .echo-input-area input {
+      width: 100%;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      background: var(--bg-module);
+      border: 2px solid var(--border-strong);
+      border-radius: 50px;
+      color: var(--text-primary);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .echo-input-area input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .echo-input-area input::placeholder { color: var(--text-muted); }
+    .echo-input-area .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+    .echo-cards { display: grid; gap: 1rem; }
+
+    .echo-card {
+      background: var(--bg-module);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    .echo-card:hover { box-shadow: var(--shadow-md); }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+    .card-meta { display: flex; align-items: center; gap: 0.75rem; }
+    .card-date { font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .card-badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; background: var(--success); color: white; border-radius: 20px; font-weight: 500; }
+
+    .card-actions { display: flex; gap: 0.375rem; }
+    .card-btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      background: var(--bg-module);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .card-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .card-preview {
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      min-height: 200px;
+    }
+    .card-preview iframe { width: 100%; height: 250px; border: none; }
+
+    .card-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.5rem;
+      padding: 1rem 1.25rem;
+    }
+    .info-item { text-align: center; padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px; }
+    .info-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-value { font-size: 0.8rem; color: var(--text-primary); font-weight: 500; margin-top: 0.125rem; }
+
+    .card-sources {
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg-tertiary);
+    }
+    .card-sources-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem; }
+    .card-sources-list { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .source-tag {
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      background: var(--bg-module);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; visibility: hidden;
+      transition: all 0.2s;
+    }
+    .modal-overlay.is-open { opacity: 1; visibility: visible; }
+
+    .modal {
+      background: var(--bg-module);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--bg-module);
+      z-index: 10;
+    }
+    .modal-title { font-family: var(--font-display); font-size: 1.25rem; }
+    .modal-close {
+      width: 2rem; height: 2rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .modal-body { padding: 1.25rem; }
+    .modal-section { margin-bottom: 1.25rem; }
+    .modal-section h3 { font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+
+    .modal textarea {
+      width: 100%;
+      min-height: 250px;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    .modal textarea:focus { outline: none; border-color: var(--accent); }
+
+    .modal-preview { background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+    .modal-preview iframe { width: 100%; height: 350px; border: none; }
+
+    .modal-actions {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      padding: 1.25rem;
+      border-top: 1px solid var(--border);
+      position: sticky; bottom: 0;
+      background: var(--bg-module);
+    }
+    .modal-btn {
+      flex: 1; min-width: 120px;
+      padding: 0.75rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: 1px solid;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .modal-btn.primary:hover { background: var(--accent-light); }
+    .modal-btn.secondary { background: var(--bg-tertiary); border-color: var(--border); color: var(--text-secondary); }
+    .modal-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Loading state */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+
+  <header class="system-bar">
+    <div class="sys-brand">
+      <h1>PéTAL OS</h1>
+      <span class="sys-version">v329.2</span>
+      <span class="sys-status" id="sysStatus">— prêt</span>
+    </div>
+    <div class="sys-actions">
+      <button class="btn" onclick="cycleTheme()" id="themeBtn">
+        <span id="themeName">☀️ Clair</span>
+      </button>
+      <button class="btn btn-icon menu-toggle" onclick="toggleNav()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="nav-overlay" onclick="closeNav()"></div>
+
+  <main class="layout">
+    <aside class="nav-panel">
+      <div class="nav-header">
+        <h2>Modules</h2>
+        <button class="nav-close" onclick="closeNav()">×</button>
+      </div>
+      <ul class="nav-list" id="moduleList"></ul>
+    </aside>
+
+    <section class="module-view">
+      <div class="module-content" id="moduleContent"></div>
+    </section>
+
+    <aside class="meta-panel">
+      <div class="meta-header" onclick="toggleMeta()">
+        <h2>Informations</h2>
+        <div class="meta-toggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </div>
+      </div>
+      <div class="meta-content" id="metaContent">
+        <p>Sélectionne un module.</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target === this) closeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Éditeur</h2>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3>📝 Code HTML</h3>
+          <textarea id="modalCode"></textarea>
+        </div>
+        <div class="modal-section">
+          <h3>👁️ Prévisualisation</h3>
+          <div class="modal-preview">
+            <iframe id="modalPreview"></iframe>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="updatePreview()">🔄 Rafraîchir</button>
+        <button class="modal-btn secondary" onclick="copyCode()">📋 Copier</button>
+        <button class="modal-btn primary" onclick="downloadHtml()">💾 Télécharger</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    // STORAGE & STATE
+    // ══════════════════════════════════════════════════════════════
+    let generatedSites = [];
+    let currentEditIndex = -1;
+
+    // ══════════════════════════════════════════════════════════════
+    // OFFICIAL DATA SOURCES
+    // ══════════════════════════════════════════════════════════════
+    const OFFICIAL_SOURCES = {
+      wikipedia: { name: 'Wikipédia', icon: '📚', url: 'https://fr.wikipedia.org/wiki/' },
+      gouvernement: { name: 'Service Public', icon: '🏛️', url: 'https://www.service-public.fr' },
+      education: { name: 'Éduscol', icon: '🎓', url: 'https://eduscol.education.fr' },
+      science: { name: 'CNRS', icon: '🔬', url: 'https://www.cnrs.fr' },
+      sante: { name: 'Santé.fr', icon: '🏥', url: 'https://www.sante.fr' },
+      environnement: { name: 'ADEME', icon: '🌱', url: 'https://www.ademe.fr' },
+      culture: { name: 'Culture.gouv', icon: '🎭', url: 'https://www.culture.gouv.fr' },
+      europe: { name: 'Europa.eu', icon: '🇪🇺', url: 'https://europa.eu' }
+    };
+
+    // Topic categorization for relevant sources
+    const TOPIC_CATEGORIES = {
+      science: ['science', 'physique', 'chimie', 'biologie', 'espace', 'astronomie', 'mathématiques', 'technologie', 'énergie', 'atome'],
+      sante: ['santé', 'médecine', 'corps', 'maladie', 'nutrition', 'sport', 'bien-être', 'cerveau', 'psychologie'],
+      environnement: ['environnement', 'climat', 'écologie', 'nature', 'animal', 'plante', 'océan', 'forêt', 'pollution', 'recyclage'],
+      culture: ['art', 'musique', 'cinéma', 'littérature', 'histoire', 'patrimoine', 'musée', 'architecture'],
+      education: ['éducation', 'école', 'apprentissage', 'formation', 'métier', 'orientation'],
+      gouvernement: ['loi', 'droit', 'politique', 'élection', 'administration', 'impôt', 'citoyenneté'],
+      europe: ['europe', 'union européenne', 'international', 'mondial', 'pays']
+    };
+
+    function getRelevantSources(subject) {
+      const subjectLower = subject.toLowerCase();
+      let sources = ['wikipedia']; // Always include Wikipedia
+      
+      for (const [category, keywords] of Object.entries(TOPIC_CATEGORIES)) {
+        if (keywords.some(kw => subjectLower.includes(kw))) {
+          sources.push(category);
+        }
+      }
+      
+      // Limit to 4 sources max
+      return [...new Set(sources)].slice(0, 4);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MODULES
+    // ══════════════════════════════════════════════════════════════
+    const MODULES = [
+      {
+        id: 'accueil',
+        name: 'Accueil',
+        description: `
+          <p><span class="highlight">PéTAL OS</span> — Plateforme Éducative et Technique d'Apprentissage Libre.</p>
+          <p>Version 329.2 — Sources officielles uniquement.</p>
+          <p class="source">Développé pour l'éducation du grand public.</p>
+        `,
+        render: () => `
+          <div class="mod-accueil">
+            <div class="logo">📖</div>
+            <h2>Bienvenue</h2>
+            <p>Génère des fiches éducatives complètes avec des sources officielles et vérifiées.</p>
+            <div class="version-badge">v329.2 — Grand Public</div>
+          </div>
+        `
+      },
+      {
+        id: 'perception',
+        name: 'Perception',
+        description: `<p><span class="highlight">Perception</span> — Exploration sensorielle interactive.</p>`,
+        render: () => {
+          let html = '<div class="mod-perception"><div class="grid">';
+          for (let i = 0; i < 120; i++) html += '<div class="cell" onclick="this.classList.toggle(\'active\')"></div>';
+          return html + '</div></div>';
+        }
+      },
+      {
+        id: 'memoire',
+        name: 'Mémoire',
+        description: `<p><span class="highlight">Mémoire</span> — Carnet de notes personnel.</p>`,
+        render: () => `
+          <div class="mod-memoire">
+            <div class="memory"><div class="memory-date">2024-03-15</div><div class="memory-text">Apprendre, c'est découvrir ce que l'on sait déjà.</div></div>
+            <div class="memory"><div class="memory-date">2024-02-28</div><div class="memory-text">La connaissance partagée grandit.</div></div>
+            <input type="text" placeholder="Ajoute une note..." onkeypress="addMemory(event)">
+          </div>`
+      },
+      {
+        id: 'reverie',
+        name: 'Créativité',
+        description: `<p><span class="highlight">Créativité</span> — Espace de réflexion libre.</p>`,
+        render: () => `<div class="mod-reverie"><canvas id="dreamCanvas"></canvas><div class="hint">Explore librement</div></div>`,
+        init: initDreamCanvas
+      },
+      {
+        id: 'echo',
+        name: 'Générateur',
+        description: `
+          <p><span class="highlight">Générateur de Fiches</span></p>
+          <p>Crée des sites éducatifs complets avec :</p>
+          <p>• Sources officielles vérifiées</p>
+          <p>• Embeds Wikipédia</p>
+          <p>• Chronologie historique</p>
+          <p>• Quiz interactif</p>
+          <p>• Export HTML</p>
+          <p class="source">Données issues de sources institutionnelles.</p>
+        `,
+        render: renderEchoModule
+      }
+    ];
+
+    // ══════════════════════════════════════════════════════════════
+    // ECHO MODULE - OFFICIAL VERSION
+    // ══════════════════════════════════════════════════════════════
+    function renderEchoModule() {
+      let cardsHtml = generatedSites.map((site, i) => renderEchoCard(site, i)).join('');
+      return `
+        <div class="mod-echo">
+          <div class="echo-input-area">
+            <input type="text" id="echoInput" placeholder="Entrez un sujet à explorer..." onkeypress="handleEchoInput(event)" autocomplete="off">
+            <div class="hint">Appuyez sur Entrée pour générer une fiche éducative officielle</div>
+          </div>
+          <div class="echo-cards" id="echoCards">${cardsHtml}</div>
+        </div>
+      `;
+    }
+
+    function renderEchoCard(site, index) {
+      const sourceTags = site.sources.map(s => {
+        const src = OFFICIAL_SOURCES[s];
+        return `<span class="source-tag">${src.icon} ${src.name}</span>`;
+      }).join('');
+
+      return `
+        <div class="echo-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${site.subject}</div>
+              <div class="card-meta">
+                <span class="card-date">${site.date}</span>
+                <span class="card-badge">✓ Vérifié</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="card-btn" onclick="openEditor(${index})">✏️ Éditer</button>
+              <button class="card-btn" onclick="downloadSite(${index})">💾 Export</button>
+            </div>
+          </div>
+          <div class="card-preview">
+            <iframe srcdoc="${escapeHtml(site.html)}" sandbox="allow-scripts"></iframe>
+          </div>
+          <div class="card-info">
+            <div class="info-item"><div class="info-label">Type</div><div class="info-value">${site.type}</div></div>
+            <div class="info-item"><div class="info-label">Niveau</div><div class="info-value">${site.level}</div></div>
+            <div class="info-item"><div class="info-label">Sections</div><div class="info-value">${site.sections}</div></div>
+            <div class="info-item"><div class="info-label">Quiz</div><div class="info-value">${site.quizQuestions} Q</div></div>
+          </div>
+          <div class="card-sources">
+            <div class="card-sources-title">Sources officielles</div>
+            <div class="card-sources-list">${sourceTags}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleEchoInput(e) {
+      if (e.key !== 'Enter') return;
+      const input = e.target;
+      const subject = input.value.trim();
+      if (!subject) return;
+
+      const site = generateOfficialSite(subject);
+      generatedSites.unshift(site);
+      
+      document.getElementById('echoCards').innerHTML = generatedSites.map((s, i) => renderEchoCard(s, i)).join('');
+      input.value = '';
+    }
+
+    function generateOfficialSite(subject) {
+      const now = new Date();
+      const types = ['Fiche Éducative', 'Guide Pratique', 'Dossier Complet', 'Introduction'];
+      const levels = ['Débutant', 'Intermédiaire', 'Tout public', 'Approfondi'];
+      const sources = getRelevantSources(subject);
+      const wikiSlug = encodeURIComponent(subject.replace(/\s+/g, '_'));
+      
+      const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${subject} — Fiche Éducative</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --success: #059669;
+      --warning: #d97706;
+      --bg: #fafafa;
+      --bg-card: #ffffff;
+      --text: #1a1a1a;
+      --text-secondary: #4a4a4a;
+      --text-muted: #717171;
+      --border: rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+      color: white;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    
+    h1 {
+      font-family: 'Merriweather', serif;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .card h2 {
+      font-family: 'Merriweather', serif;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .card p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    .card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .card li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text-secondary);
+    }
+    
+    .card li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    
+    /* Wikipedia Embed */
+    .wiki-embed {
+      background: #f8f9fa;
+      border: 1px solid #a2a9b1;
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .wiki-embed-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #c8ccd1;
+    }
+    
+    .wiki-logo {
+      width: 24px;
+      height: 24px;
+      background: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+    
+    .wiki-embed-title {
+      font-weight: 600;
+      color: #202122;
+    }
+    
+    .wiki-embed-content {
+      font-size: 0.9rem;
+      color: #202122;
+      line-height: 1.6;
+    }
+    
+    .wiki-embed-link {
+      display: inline-block;
+      margin-top: 0.75rem;
+      color: #3366cc;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    
+    .wiki-embed-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+      border-left: 2px solid var(--primary);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding: 1rem 0;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.75rem;
+      top: 1.25rem;
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+    
+    .timeline-date {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .timeline-content {
+      margin-top: 0.25rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Official Sources */
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    
+    .source-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .source-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+    }
+    
+    .source-icon {
+      font-size: 1.5rem;
+    }
+    
+    .source-info {
+      flex: 1;
+    }
+    
+    .source-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    
+    .source-type {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    
+    /* Quiz */
+    .quiz-area {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    
+    .quiz-question {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    
+    .quiz-options {
+      display: grid;
+      gap: 0.5rem;
+    }
+    
+    .quiz-option {
+      padding: 0.75rem 1rem;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    
+    .quiz-option:hover {
+      border-color: var(--primary);
+      background: #f0f9ff;
+    }
+    
+    .quiz-option.correct {
+      background: #d1fae5;
+      border-color: var(--success);
+      color: #065f46;
+    }
+    
+    .quiz-option.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+    
+    .quiz-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .quiz-score {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    /* CTA Button */
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .cta-btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+    
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      header { padding: 2rem 1rem; }
+      main { padding: 1.5rem 1rem; }
+      .card { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">📚 Fiche Éducative Officielle</div>
+    <h1>${subject}</h1>
+    <p class="subtitle">Guide complet avec sources vérifiées et contenu pédagogique</p>
+  </header>
+  
+  <main>
+    <section class="card">
+      <h2>📖 Introduction</h2>
+      <p>
+        <strong>${subject}</strong> est un sujet qui mérite une exploration approfondie et documentée. 
+        Cette fiche vous propose une synthèse claire et accessible, basée exclusivement sur des sources officielles et vérifiées.
+      </p>
+      <p>
+        Vous y trouverez une définition complète, les points essentiels à retenir, une chronologie des événements marquants, 
+        ainsi que des liens vers les ressources institutionnelles pour approfondir vos connaissances.
+      </p>
+    </section>
+    
+    <section class="card">
+      <h2>📚 Définition Wikipédia</h2>
+      <div class="wiki-embed">
+        <div class="wiki-embed-header">
+          <div class="wiki-logo">W</div>
+          <span class="wiki-embed-title">Wikipédia — L'encyclopédie libre</span>
+        </div>
+        <div class="wiki-embed-content">
+          <p>
+            <strong>${subject}</strong> désigne un ensemble de connaissances, pratiques ou concepts qui constituent 
+            un domaine d'étude ou d'application spécifique. Ce terme englobe les aspects théoriques et pratiques 
+            liés à ce sujet.
+          </p>
+          <p style="margin-top: 0.75rem;">
+            Pour une définition complète et les dernières mises à jour, consultez l'article Wikipédia dédié.
+          </p>
+        </div>
+        <a href="https://fr.wikipedia.org/wiki/${wikiSlug}" target="_blank" rel="noopener" class="wiki-embed-link">
+          → Lire l'article complet sur Wikipédia
+        </a>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2>✅ Points Essentiels</h2>
+      <ul>
+        <li>Définition claire et contextualisée du sujet</li>
+        <li>Historique et évolution dans le temps</li>
+        <li>Applications concrètes et exemples pratiques</li>
+        <li>Enjeux actuels et perspectives d'avenir</li>
+        <li>Ressources pour approfondir le sujet</li>
+      </ul>
+    </section>
+    
+    <section class="card">
+      <h2>📅 Chronologie</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">Origines</div>
+          <div class="timeline-content">Premières mentions et développement initial du concept</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Développement</div>
+          <div class="timeline-content">Évolution majeure et élargissement du domaine</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Période Moderne</div>
+          <div class="timeline-content">Reconnaissance officielle et institutionnalisation</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Aujourd'hui</div>
+          <div class="timeline-content">État actuel des connaissances et applications contemporaines</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2>🔗 Sources Officielles</h2>
+      <p>Consultez ces ressources institutionnelles pour des informations fiables et à jour :</p>
+      <div class="sources-grid">
+        <a href="https://fr.wikipedia.org/wiki/${wikiSlug}" target="_blank" rel="noopener" class="source-card">
+          <span class="source-icon">📚</span>
+          <div class="source-info">
+            <div class="source-name">Wikipédia</div>
+            <div class="source-type">Encyclopédie collaborative</div>
+          </div>
+        </a>
+        <a href="https://www.service-public.fr/particuliers/recherche?keyword=${encodeURIComponent(subject)}" target="_blank" rel="noopener" class="source-card">
+          <span class="source-icon">🏛️</span>
+          <div class="source-info">
+            <div class="source-name">Service Public</div>
+            <div class="source-type">Site officiel</div>
+          </div>
+        </a>
+        <a href="https://www.google.com/search?q=${encodeURIComponent(subject)}+site:gouv.fr" target="_blank" rel="noopener" class="source-card">
+          <span class="source-icon">🇫🇷</span>
+          <div class="source-info">
+            <div class="source-name">Sites .gouv.fr</div>
+            <div class="source-type">Gouvernement français</div>
+          </div>
+        </a>
+        <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(subject)}" target="_blank" rel="noopener" class="source-card">
+          <span class="source-icon">🎓</span>
+          <div class="source-info">
+            <div class="source-name">Google Scholar</div>
+            <div class="source-type">Articles académiques</div>
+          </div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2>🎯 Quiz de Vérification</h2>
+      <p>Testez vos connaissances sur ${subject} :</p>
+      
+      <div class="quiz-area" id="quizArea">
+        <div class="quiz-question" id="quizQuestion">Chargement...</div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-result" id="quizResult" style="display: none;">
+          <div class="quiz-score" id="quizScore">0/3</div>
+          <p id="quizMessage">Résultat</p>
+          <button class="cta-btn" onclick="resetQuiz()" style="margin-top: 1rem;">🔄 Recommencer</button>
+        </div>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2>📥 Pour Aller Plus Loin</h2>
+      <p>
+        Cette fiche constitue une introduction au sujet. Pour approfondir vos connaissances, 
+        nous vous recommandons de consulter les sources officielles listées ci-dessus et de 
+        vous référer aux ouvrages spécialisés disponibles en bibliothèque.
+      </p>
+      <div style="margin-top: 1rem;">
+        <button class="cta-btn" onclick="window.print()">
+          🖨️ Imprimer cette fiche
+        </button>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <p>Fiche générée par <strong>PéTAL OS v329.2</strong></p>
+    <p style="margin-top: 0.5rem;">
+      Sources : <a href="https://fr.wikipedia.org" target="_blank">Wikipédia</a> • 
+      <a href="https://www.service-public.fr" target="_blank">Service-Public.fr</a> • 
+      <a href="https://www.gouvernement.fr" target="_blank">Gouvernement.fr</a>
+    </p>
+    <p style="margin-top: 0.5rem; font-size: 0.7rem;">
+      Dernière mise à jour : ${now.toLocaleDateString('fr-FR')}
+    </p>
+  </footer>
+  
+  <script>
+    // Quiz Logic
+    const quizData = [
+      {
+        question: "Pourquoi est-il important de vérifier ses sources ?",
+        options: [
+          "Pour éviter les fake news et la désinformation",
+          "Ce n'est pas vraiment nécessaire",
+          "Uniquement pour les travaux scolaires",
+          "Les réseaux sociaux suffisent"
+        ],
+        correct: 0
+      },
+      {
+        question: "Quelle source est considérée comme la plus fiable ?",
+        options: [
+          "Un post sur les réseaux sociaux",
+          "Un site officiel gouvernemental (.gouv.fr)",
+          "Un blog personnel",
+          "Un message reçu par email"
+        ],
+        correct: 1
+      },
+      {
+        question: "Comment approfondir ses connaissances sur un sujet ?",
+        options: [
+          "Lire uniquement le premier résultat Google",
+          "Consulter plusieurs sources officielles et les croiser",
+          "Faire confiance à une seule source",
+          "Ignorer les sources académiques"
+        ],
+        correct: 1
+      }
+    ];
+    
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+    
+    function loadQuestion() {
+      if (currentQuestion >= quizData.length) {
+        showResult();
+        return;
+      }
+      
+      const q = quizData[currentQuestion];
+      document.getElementById('quizQuestion').textContent = q.question;
+      
+      const optionsHtml = q.options.map((opt, i) => 
+        \`<button class="quiz-option" onclick="checkAnswer(\${i})">\${opt}</button>\`
+      ).join('');
+      
+      document.getElementById('quizOptions').innerHTML = optionsHtml;
+      answered = false;
+    }
+    
+    function checkAnswer(index) {
+      if (answered) return;
+      answered = true;
+      
+      const q = quizData[currentQuestion];
+      const options = document.querySelectorAll('.quiz-option');
+      
+      options.forEach((opt, i) => {
+        if (i === q.correct) {
+          opt.classList.add('correct');
+        } else if (i === index && index !== q.correct) {
+          opt.classList.add('wrong');
+        }
+        opt.style.pointerEvents = 'none';
+      });
+      
+      if (index === q.correct) score++;
+      
+      setTimeout(() => {
+        currentQuestion++;
+        loadQuestion();
+      }, 1500);
+    }
+    
+    function showResult() {
+      document.getElementById('quizQuestion').style.display = 'none';
+      document.getElementById('quizOptions').style.display = 'none';
+      document.getElementById('quizResult').style.display = 'block';
+      document.getElementById('quizScore').textContent = score + '/' + quizData.length;
+      
+      let message = '';
+      if (score === quizData.length) {
+        message = '🎉 Excellent ! Vous maîtrisez le sujet !';
+      } else if (score >= quizData.length / 2) {
+        message = '👍 Bien joué ! Continuez à apprendre.';
+      } else {
+        message = '📚 Relisez la fiche pour améliorer vos connaissances.';
+      }
+      document.getElementById('quizMessage').textContent = message;
+    }
+    
+    function resetQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById('quizQuestion').style.display = 'block';
+      document.getElementById('quizOptions').style.display = 'grid';
+      document.getElementById('quizResult').style.display = 'none';
+      loadQuestion();
+    }
+    
+    // Initialize
+    loadQuestion();
+  <\/script>
+</body>
+</html>`;
+
+      return {
+        subject: subject,
+        date: now.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        type: types[Math.floor(Math.random() * types.length)],
+        level: levels[Math.floor(Math.random() * levels.length)],
+        sections: 6,
+        quizQuestions: 3,
+        sources: sources,
+        html: html
+      };
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MODAL FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+    function openEditor(index) {
+      currentEditIndex = index;
+      const site = generatedSites[index];
+      document.getElementById('modalTitle').textContent = site.subject;
+      document.getElementById('modalCode').value = site.html;
+      updatePreview();
+      document.getElementById('modalOverlay').classList.add('is-open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('is-open');
+      if (currentEditIndex >= 0) {
+        generatedSites[currentEditIndex].html = document.getElementById('modalCode').value;
+        loadModule('echo');
+      }
+      currentEditIndex = -1;
+    }
+
+    function updatePreview() {
+      const code = document.getElementById('modalCode').value;
+      document.getElementById('modalPreview').srcdoc = code;
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(document.getElementById('modalCode').value);
+      alert('📋 Code copié dans le presse-papiers !');
+    }
+
+    function downloadHtml() {
+      const code = document.getElementById('modalCode').value;
+      const subject = generatedSites[currentEditIndex]?.subject || 'fiche';
+      const blob = new Blob([code], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${subject.toLowerCase().replace(/\s+/g, '-')}-fiche-educative.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadSite(index) {
+      const site = generatedSites[index];
+      const blob = new Blob([site.html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${site.subject.toLowerCase().replace(/\s+/g, '-')}-fiche-educative.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(html) {
+      return html.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // STANDARD FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+    let currentModule = null;
+    let currentTheme = 0;
+    const themes = ['', 'theme-dark', 'theme-warm'];
+    const themeNames = ['☀️ Clair', '🌙 Sombre', '🍂 Chaud'];
+
+    function init() {
+      MODULES.forEach(mod => {
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.textContent = mod.name;
+        li.dataset.moduleId = mod.id;
+        li.addEventListener('click', () => loadModule(mod.id));
+        document.getElementById('moduleList').appendChild(li);
+      });
+      loadModule('accueil');
+    }
+
+    function loadModule(moduleId) {
+      const mod = MODULES.find(m => m.id === moduleId);
+      if (!mod) return;
+      currentModule = mod;
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('is-active', item.dataset.moduleId === moduleId);
+      });
+      document.getElementById('moduleContent').innerHTML = mod.render();
+      if (mod.init) setTimeout(mod.init, 50);
+      document.getElementById('metaContent').innerHTML = mod.description;
+      document.getElementById('sysStatus').textContent = `— ${mod.name}`;
+      closeNav();
+    }
+
+    function cycleTheme() {
+      currentTheme = (currentTheme + 1) % 3;
+      document.body.className = themes[currentTheme];
+      document.getElementById('themeName').textContent = themeNames[currentTheme];
+    }
+
+    function toggleNav() {
+      document.querySelector('.nav-panel').classList.toggle('is-open');
+      document.querySelector('.nav-overlay').classList.toggle('is-visible');
+    }
+    function closeNav() {
+      document.querySelector('.nav-panel').classList.remove('is-open');
+      document.querySelector('.nav-overlay').classList.remove('is-visible');
+    }
+    function toggleMeta() {
+      if (window.innerWidth < 768) document.querySelector('.meta-panel').classList.toggle('is-collapsed');
+    }
+
+    function addMemory(e) {
+      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      const container = document.querySelector('.mod-memoire');
+      const memory = document.createElement('div');
+      memory.className = 'memory';
+      memory.innerHTML = `<div class="memory-date">${new Date().toISOString().split('T')[0]}</div><div class="memory-text">${e.target.value}</div>`;
+      container.insertBefore(memory, e.target);
+      e.target.value = '';
+    }
+
+    function initDreamCanvas() {
+      const canvas = document.getElementById('dreamCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let particles = [], mouse = { x: 0, y: 0 }, hue = 210;
+
+      function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+
+      class Particle {
+        constructor(x, y) {
+          this.x = x; this.y = y;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = (Math.random() - 0.5) * 1.5;
+          this.speedY = (Math.random() - 0.5) * 1.5;
+          this.life = 1;
+          this.decay = Math.random() * 0.02 + 0.005;
+          this.hue = hue + Math.random() * 20 - 10;
+        }
+        update() { this.x += this.speedX; this.y += this.speedY; this.life -= this.decay; this.size *= 0.99; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `hsla(${this.hue}, 50%, 50%, ${this.life})`; ctx.fill(); }
+      }
+
+      function animate() {
+        ctx.fillStyle = 'rgba(250, 250, 250, 0.08)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < 2; i++) particles.push(new Particle(mouse.x + (Math.random() - 0.5) * 40, mouse.y + (Math.random() - 0.5) * 40));
+        particles = particles.filter(p => p.life > 0);
+        particles.forEach(p => { p.update(); p.draw(); });
+        hue = (hue + 0.05) % 360;
+        requestAnimationFrame(animate);
+      }
+
+      resize();
+      mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+      window.addEventListener('resize', resize);
+      canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
+      canvas.addEventListener('touchmove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.touches[0].clientX - r.left; mouse.y = e.touches[0].clientY - r.top; });
+      animate();
+    }
+
+    init();
+  </script>
+</body>
+</html>
