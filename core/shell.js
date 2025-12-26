@@ -62,6 +62,12 @@ function buildMenu(modules){
 /* LOAD MODULE */
 function loadModule(m){
   currentModule = m;
+
+  if(m.mode === "fullscreen"){
+    window.open(m.path, "_blank");
+    return;
+  }
+
   frame.src = m.path;
 
   meta.innerHTML = `
@@ -72,6 +78,7 @@ function loadModule(m){
     <p><strong>Tags :</strong> ${(m.tags||[]).join(", ")}</p>
   `;
 }
+
 
 /* ACTIONS */
 function openCurrent(){
