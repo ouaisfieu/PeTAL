@@ -9,8 +9,11 @@
       "id": "precarite",
       "title": "Précarité en Belgique",
       "type": "dashboard",
+      "mode": "fullscreen",
+      "path": "modules/dashboards/precarite.html"
+
+
       "audience": "grand public",
-      "path": "modules/dashboards/precarite.html",
       "tags": ["officiel", "social", "belgique"],
       "description": "Données officielles, analyse critique et pistes d’action."
     },
