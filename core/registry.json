@@ -1,0 +1,40 @@
+{
+  "system": {
+    "name": "PTAL OS",
+    "ethics": "distinction faits / analyses / opinions",
+    "defaultTheme": "sober"
+  },
+  "modules": [
+    {
+      "id": "precarite",
+      "title": "Précarité en Belgique",
+      "type": "dashboard",
+      "audience": "grand public",
+      "path": "modules/dashboards/precarite.html",
+      "tags": ["officiel", "social", "belgique"],
+      "description": "Données officielles, analyse critique et pistes d’action."
+    },
+    {
+      "id": "toolkit-pro",
+      "title": "PTAL Toolkit Pro",
+      "type": "outil",
+      "audience": "avancé",
+      "path": "modules/toolkit-pro.html",
+      "tags": ["production", "markdown"]
+    },
+    {
+      "id": "toolkit-light",
+      "title": "PTAL Toolkit Light",
+      "type": "outil",
+      "audience": "grand public",
+      "path": "modules/toolkit-light.html"
+    },
+    {
+      "id": "matrice",
+      "title": "La Matrice",
+      "type": "narratif",
+      "audience": "initiation",
+      "path": "modules/matrice.html"
+    }
+  ]
+}
