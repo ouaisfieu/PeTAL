@@ -1,6 +1,6 @@
-# PTAL OS
+# PéTAL OS
 
-PTAL OS est un système documentaire citoyen statique.
+PéTAL OS est un système documentaire citoyen statique.
 
 Il permet de :
 - produire
@@ -25,20 +25,20 @@ CC BY-SA
 
 Parfait.
 Alors on y va **plein gaz**, mais proprement.
-Voici **PTAL OS v1 — le canevas final**, livré comme **socle réel**, pas une démo.
+Voici **PéTAL OS v1 — le canevas final**, livré comme **socle réel**, pas une démo.
 
 > ⚠️ Ce qui suit est volontairement **auto-suffisant**, **lisible**, **forkable**,
 > et peut tourner **localement**, sur **GitHub Pages**, ou sur **clé USB**.
 
 ---
 
-# 🚀 PTAL OS v1 — Operating System documentaire citoyen
+# 🚀 PéTAL OS v1 — Operating System documentaire citoyen
 
 ---
 
 ## 0️⃣ Philosophie (courte et claire)
 
-**PTAL OS n’est pas un site.**
+**PéTAL OS n’est pas un site.**
 C’est un **orchestrateur de documents**.
 
 * le contenu vit dans des modules autonomes
@@ -52,7 +52,7 @@ C’est un **orchestrateur de documents**.
 ## 1️⃣ Arborescence finale (à créer telle quelle)
 
 ```txt
-ptal-os/
+PéTAL-os/
 ├── index.html
 ├── core/
 │   ├── registry.json
@@ -81,7 +81,7 @@ ptal-os/
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PTAL OS</title>
+<title>PéTAL OS</title>
 <link rel="stylesheet" href="ui/shell.css">
 <link rel="stylesheet" href="ui/themes.css">
 </head>
@@ -90,7 +90,7 @@ ptal-os/
 
 <header class="system-bar">
   <div class="sys-left">
-    <strong>PTAL OS</strong>
+    <strong>PéTAL OS</strong>
     <span id="sysStatus">— état du réel</span>
   </div>
   <div class="sys-right">
@@ -133,7 +133,7 @@ ptal-os/
 ```json
 {
   "system": {
-    "name": "PTAL OS",
+    "name": "PéTAL OS",
     "ethics": "distinction faits / analyses / opinions",
     "defaultTheme": "sober"
   },
@@ -149,7 +149,7 @@ ptal-os/
     },
     {
       "id": "toolkit-pro",
-      "title": "PTAL Toolkit Pro",
+      "title": "PéTAL Toolkit Pro",
       "type": "outil",
       "audience": "avancé",
       "path": "modules/toolkit-pro.html",
@@ -157,7 +157,7 @@ ptal-os/
     },
     {
       "id": "toolkit-light",
-      "title": "PTAL Toolkit Light",
+      "title": "PéTAL Toolkit Light",
       "type": "outil",
       "audience": "grand public",
       "path": "modules/toolkit-light.html"
@@ -187,7 +187,7 @@ let currentModule = null;
 /* REGISTRY EMBARQUÉ (DEV + OFFLINE SAFE) */
 const registry = {
   system: {
-    name: "PTAL OS",
+    name: "PéTAL OS",
     ethics: "distinction faits / analyses / opinions",
     defaultTheme: "sober"
   },
@@ -203,7 +203,7 @@ const registry = {
     },
     {
       id: "toolkit-pro",
-      title: "PTAL Toolkit Pro",
+      title: "PéTAL Toolkit Pro",
       type: "outil",
       audience: "avancé",
       path: "modules/toolkit-pro.html",
@@ -211,7 +211,7 @@ const registry = {
     },
     {
       id: "toolkit-light",
-      title: "PTAL Toolkit Light",
+      title: "PéTAL Toolkit Light",
       type: "outil",
       audience: "grand public",
       path: "modules/toolkit-light.html"
@@ -346,9 +346,9 @@ li:hover{background:#eee}
 ## 7️⃣ README.md — posture claire (extrait)
 
 ```md
-# PTAL OS
+# PéTAL OS
 
-PTAL OS est un système documentaire citoyen statique.
+PéTAL OS est un système documentaire citoyen statique.
 
 Il permet de :
 - produire
@@ -382,7 +382,7 @@ Tu as :
 👉 Tu peux maintenant :
 
 * intégrer tous tes fichiers existants
-* documenter PTAL
+* documenter PéTAL
 * diffuser
 * arrêter de bricoler
 
